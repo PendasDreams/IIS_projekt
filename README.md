@@ -1,13 +1,13 @@
 # IIS_projekt
 
 # Časový plán implementace: 
-TODO
+TODO__
 
-TODO
+TODO__
 
-TODO
+TODO__
 
-Deadline : 27. 11. 2023 v 23:59
+Deadline : 27. 11. 2023 v 23:59__
 
 # Materiály k projektu
 
