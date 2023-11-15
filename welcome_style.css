@@ -1,8 +1,8 @@
 /* styles.css */
 .user-bar {
-    font-family: Arial, sans-serif; /* Použití fontu Arial nebo sans-serif, pokud Arial není k dispozici */
-    font-size: 16px; /* Velikost písma 16px (upravte podle svých preferencí) */
-    font-weight: bold; /* Tučný text */
+    font-family: Arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
     background-color: blue;
     color: white;
     padding: 10px;
@@ -10,35 +10,42 @@
 }
 
 .user-info {
-    font-size: 18px; /* Velikost písma 18px pro nadpisy (upravte podle svých preferencí) */
+    font-size: 18px;
 }
 
 .centered-buttons {
     text-align: center;
-    margin-top: 20px; /* Vertikální odsazení od vrchního okraje */
+    margin-top: 20px;
     display: flex;
-    flex-direction: column; /* Obsah bude pod sebou */
-    align-items: center; /* Uprostřed obsahu na středu stránky */
+    flex-direction: column;
+    align-items: center;
 }
 
 .centered-buttons h2 {
-    background-color: #FF5733; /* Změňte na požadovanou barvu */
+    background-color: #FF5733;
     color: white;
-    border-radius: 10px; /* Zaoblené rohy */
-    padding: 10px;
+    border-radius: 10px;
+    padding: 0px;
     margin: 10px;
-    width: 90%; /* Roztáhne nadpis na celou šířku */
-    text-align: center; /* Zarovná text na střed */
+    width: 70%;
+    text-align: center;
 }
 
 .centered-buttons a {
     margin: 10px;
-    padding: 10px 20px;
-    background-color: rgb(0, 225, 255);
+    padding: 0;
+    background-color: transparent;
     color: white;
     text-decoration: none;
     border-radius: 5px;
+    width: 100%;
+    text-align: center;
+    display: block;
+    width: 100%;
+    padding: 0px 0; /* Snížení výšky tlačítka (změna v této řádce) */
+    cursor: pointer;
 }
+
 
 /* Styly pro tabulku s uživateli */
 table {
@@ -157,4 +164,32 @@ tr:nth-child(even) {
     border: 1px solid #ffcc00; /* Rámeček kolem chybové zprávy */
     border-radius: 5px; /* Zaoblené rohy */
     font-weight: bold; /* Tučné písmo */
+}
+
+.logout-button {
+    background-color: red; /* Červená barva pozadí tlačítka */
+    color: white; /* Bílý text na tlačítku */
+    border: none; /* Bez okraje */
+    padding: 10px 20px; /* Vnější okraje tlačítka */
+    cursor: pointer; /* Ukazatel ruky na hover (pro interaktivitu) */
+    margin-left: 10px; /* Odsazení tlačítka od levého okraje */
+    font-family: Arial, sans-serif; /* Použití fontu Arial nebo sans-serif, pokud Arial není k dispozici */
+    font-size: 16px; /* Velikost písma 16px (upravte podle svých preferencí) */
+    font-weight: bold; /* Tučný text */
+}
+
+.system-button {
+    background-color: red; /* Červená barva pozadí tlačítka */
+    color: white; /* Bílý text na tlačítku */
+    padding: 10px 20px; /* Vnější okraje tlačítka */
+    border: none; /* Bez okraje */
+    border-radius: 5px; /* Zaoblené rohy */
+    text-decoration: none; /* Odstranění podtržení odkazu */
+    
+    /* Zarovnání tlačítka doleva */
+    float: left;
+}
+
+.system-button:hover {
+    background-color: darkred; /* Červená barva pozadí při najetí myší */
 }
