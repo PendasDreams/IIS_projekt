@@ -107,14 +107,12 @@ if (isset($_POST['deleteUser'])) {
 <body>
 <div class="user-bar">
     <?php if ($currentUsername) : ?>
-        Přihlášený uživatel: <?= $currentUsername ?><br>
-        Role: <?= $currentRole ?>
+        <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
+        <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
     <?php else : ?>
-        Není žádný uživatel přihlášen.
+        <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
-
-
-    </div>
+</div>
 
     <?php if ($currentRole === 'admin') : ?>
     <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
