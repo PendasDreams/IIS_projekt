@@ -4,8 +4,6 @@ session_start();
 // Dotaz pro odstranění tabulky systems (pokud existuje)
 $dropTableQuery = "DROP TABLE IF EXISTS systems";
 
-
-
 // Funkce pro odhlášení uživatele
 function logoutUser() {
     session_unset(); // Vyprázdnění všech session proměnných
@@ -42,18 +40,62 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
+// Zpracování formuláře pro přidání systému
+if (isset($_POST['addSystem'])) {
+    $newSystemName = mysqli_real_escape_string($db, $_POST['newSystemName']);
+    $newSystemDescription = mysqli_real_escape_string($db, $_POST['newSystemDescription']);
+    $newSystemAdminID = mysqli_real_escape_string($db, $_POST['newSystemAdminID']);
+
+    if (!systemExists($db, $newSystemName)) {
+        $insertQuery = "INSERT INTO systems (name, description, admin_id) VALUES ('$newSystemName', '$newSystemDescription', '$newSystemAdminID')";
+
+        if (mysqli_query($db, $insertQuery)) {
+            echo "Systém '$newSystemName' byl úspěšně přidán.";
+        } else {
+            echo 'Chyba při přidávání systému: ' . mysqli_error($db);
+        }
+    } else {
+        echo "Systém s názvem '$newSystemName' již existuje.";
+    }
+}
+
+function deleteSystem($db, $systemId) {
+    $systemId = mysqli_real_escape_string($db, $systemId);
+    $deleteQuery = "DELETE FROM systems WHERE id = '$systemId'";
+    return mysqli_query($db, $deleteQuery);
+}
+
+// Smazání systému
+if (isset($_POST['deleteSystem'])) {
+    $systemIdToDelete = mysqli_real_escape_string($db, $_POST['deleteSystemId']);
+    if (deleteSystem($db, $systemIdToDelete)) {
+        echo "Systém s ID $systemIdToDelete byl smazán.";
+    } else {
+        echo 'Chyba při mazání systému: ' . mysqli_error($db);
+    }
+}
+
+// Dotaz pro získání všech systémů
+$query = "SELECT * FROM systems";
+
+$result = mysqli_query($db, $query);
+
+if (!$result) {
+    die('Chyba dotazu: ' . mysqli_error($db));
+}
+
 ?>
+
 <html>
 <head>
-    <title>Přihlášení</title>
-    <link rel="stylesheet" type="text/css" href="welcome_style.css"> <!-- Import stylů z externího souboru -->
-    <link rel="stylesheet" type="text/css" href="styles.css"> <!-- Import stylů z externího souboru -->
+    <title>Přidat systém</title>
+    <link rel="stylesheet" type="text/css" href="welcome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
+
 <div class="user-bar">
-
-<a href="editusers.php" class="system-button">Uživatelé</a>
-
+    <a href="editusers.php" class="system-button">Uživatelé</a>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
@@ -63,78 +105,75 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     <?php else : ?>
         <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
-
 </div>
 
+<div class="centered-buttons">
 
 
+<h2>Přidat systém</h2>
+<form class="user-form" method="POST" action="">
+    <div class="form-group">
+        <label for="newSystemName">Název systému:</label>
+        <input type="text" id="newSystemName" name="newSystemName" required>
+    </div>
+
+    <div class="form-group">
+        <label for="newSystemDescription">Popis systému:</label>
+        <textarea id="newSystemDescription" name="newSystemDescription" required></textarea>
+    </div>
+
+    <div class="form-group">
+        <label for="newSystemAdminID">ID admina systému:</label>
+        <input type="number" id="newSystemAdminID" name="newSystemAdminID" required>
+    </div>
+
+    <div class="form-group">
+        <button class="btn-submit" type="submit" name="addSystem">Přidat systém</button>
+    </div>
+</form>
+
+<h2>Seznam všech systémů</h2>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Název systému</th>
+        <th>Popis</th>
+        <th>ID admina</th>
+        <th>Smazat</th>
+        <th>Upravit</th>
+        <th>Sdílet</th>
+    </tr>
+    <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+        <tr>
+            <td><?= $row['id'] ?></td>
+            <td><?= $row['name'] ?></td>
+            <td><?= $row['description'] ?></td>
+            <td><?= $row['admin_id'] ?></td>
+            <td>
+                <form method="POST" action="">
+                    <input type="hidden" name="deleteSystemId" value="<?= $row['id'] ?>">
+                    <button class="delete-button" type="submit" name="deleteSystem">Smazat</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="edit_systems.php">
+                    <input type="hidden" name="editSystemId" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="loadEditSystem">Upravit</button>
+                </form>
+            </td>
+            <td>
+                <form >
+                    <input type="hidden" name="shareSystemId" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="loadEditSystem">Sdílet</button>
+                </form>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+</table>
+</div>
 </body>
 </html>
 
 <?php
-
-if (mysqli_query($db, $dropTableQuery)) {
-    echo "Tabulka systems byla úspěšně odstraněna.<br>";
-} else {
-    echo 'Chyba při odstraňování tabulky systems: ' . mysqli_error($db) . "<br>";
-}
-
-// Vytvoření tabulky systems (pokud ještě neexistuje)
-$createTableQuery = "CREATE TABLE IF NOT EXISTS systems (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    admin_id INT
-)";
-
-
-
-if (mysqli_query($db, $createTableQuery)) {
-    echo "Tabulka systems byla úspěšně vytvořena nebo již existuje.<br>";
-} else {
-    echo 'Chyba při vytváření tabulky systems: ' . mysqli_error($db) . "<br>";
-}
-
-// Vložení informací do tabulky systems
-$newSystemName = 'Nový systém'; // Změňte na jméno systému, které se má vložit
-$newSystemDescription = 'Popis nového systému'; // Změňte na popis nového systému
-$newSystemAdminID = 1; // Změňte na ID admina systému
-
-if (!systemExists($db, $newSystemName)) {
-    $insertQuery = "INSERT INTO systems (name, description, admin_id) VALUES ('$newSystemName', '$newSystemDescription', $newSystemAdminID)";
-
-    if (mysqli_query($db, $insertQuery)) {
-        echo "Informace byly úspěšně vloženy do tabulky systems.<br>";
-    } else {
-        echo 'Chyba při vkládání informací do tabulky systems: ' . mysqli_error($db) . "<br>";
-    }
-} else {
-    echo "Systém s názvem '$newSystemName' již existuje.<br>";
-}
-
-// Výpis obsahu tabulky systems
-$query = "SELECT * FROM systems";
-
-$result = mysqli_query($db, $query);
-
-if (!$result) {
-    die('Chyba dotazu: ' . mysqli_error($db));
-}
-
-echo "<h2>Obsah tabulky Systems</h2>";
-echo "<table border='1'>";
-echo "<tr><th>ID</th><th>Název systému</th><th>Popis</th><th>ID admina</th></tr>";
-
-while ($row = mysqli_fetch_assoc($result)) {
-    echo "<tr>";
-    echo "<td>" . $row['id'] . "</td>";
-    echo "<td>" . $row['name'] . "</td>";
-    echo "<td>" . $row['description'] . "</td>";
-    echo "<td>" . $row['admin_id'] . "</td>";
-    echo "</tr>";
-}
-
-echo "</table>";
-
 mysqli_close($db);
 ?>

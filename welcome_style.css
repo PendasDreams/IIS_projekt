@@ -22,12 +22,12 @@
 }
 
 .centered-buttons h2 {
-    background-color: #FF5733;
+    background-color: #ff0000;
     color: white;
-    border-radius: 10px;
+    border-radius: 0px;
     padding: 0px;
     margin: 10px;
-    width: 70%;
+    width: 100%;
     text-align: center;
 }
 
@@ -185,6 +185,7 @@ tr:nth-child(even) {
     border: none; /* Bez okraje */
     border-radius: 5px; /* Zaoblené rohy */
     text-decoration: none; /* Odstranění podtržení odkazu */
+    margin-right: 20px;
     
     /* Zarovnání tlačítka doleva */
     float: left;
