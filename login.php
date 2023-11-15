@@ -6,14 +6,17 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
-// SQL příkaz pro odstranění tabulky users (pokud existuje)
-$dropTableQuery = "DROP TABLE IF EXISTS users";
 
-if (mysqli_query($db, $dropTableQuery)) {
-    echo "Tabulka 'users' byla úspěšně odstraněna, pokud existovala.<br>";
-} else {
-    die('Chyba při odstraňování tabulky: ' . mysqli_error($db));
-}
+// // SQL příkaz pro odstranění tabulky users (pokud existuje)
+// $dropTableQuery = "DROP TABLE IF EXISTS users";
+
+// if (mysqli_query($db, $dropTableQuery)) {
+//     echo "Tabulka 'users' byla úspěšně odstraněna, pokud existovala.<br>";
+// } else {
+//     die('Chyba při odstraňování tabulky: ' . mysqli_error($db));
+// }
+
+
 
 // SQL příkaz pro vytvoření tabulky users (pokud neexistuje)
 $createTableQuery = "CREATE TABLE IF NOT EXISTS users (
@@ -29,45 +32,38 @@ if (mysqli_query($db, $createTableQuery)) {
     die('Chyba při vytváření tabulky: ' . mysqli_error($db));
 }
 
-// Vložení uživatele s jménem "admin" a heslem "admin" do tabulky
-$usernameAdmin = 'admin';
-$passwordAdmin = 'admin';
-$roleAdmin = 'admin';
+$usersToInsert = [
+    ['admin', 'admin', 'admin'],
+    ['registered', 'registered', 'registered'],
+    ['broker', 'broker', 'broker'],
+];
 
-$insertAdminQuery = "INSERT INTO users (username, password, role) VALUES ('$usernameAdmin', '$passwordAdmin', '$roleAdmin')";
+foreach ($usersToInsert as $userData) {
+    $username = $userData[0];
+    $password = $userData[1];
+    $role = $userData[2];
 
-if (mysqli_query($db, $insertAdminQuery)) {
-    echo "Uživatel '$usernameAdmin' byl úspěšně vložen do databáze s rolí 'admin'.<br>";
-} else {
-    die('Chyba při vkládání uživatele: ' . mysqli_error($db));
+    // Zkontrolujte, zda uživatel s tímto jménem již existuje v databázi
+    $checkQuery = "SELECT username FROM users WHERE username = '$username'";
+    $checkResult = mysqli_query($db, $checkQuery);
+
+    if (!$checkResult) {
+        die('Chyba dotazu: ' . mysqli_error($db));
+    }
+
+    if (mysqli_num_rows($checkResult) === 0) {
+        // Uživatel s tímto jménem neexistuje, můžeme jej vložit do databáze
+        $insertQuery = "INSERT IGNORE INTO users (username, password, role) VALUES ('$username', '$password', '$role')";
+        
+        if (mysqli_query($db, $insertQuery)) {
+            echo "Uživatel '$username' byl úspěšně vložen do databáze s rolí '$role'.<br>";
+        } else {
+            die('Chyba při vkládání uživatele: ' . mysqli_error($db));
+        }
+    } else {
+        echo "Uživatel s jménem '$username' již existuje v databázi, takže nebyl znovu vložen.<br>";
+    }
 }
-
-$usernameRegistered = 'Registered';
-$passwordARegistered = 'Registered';
-$roleRegistered = 'Registered';
-
-$insertRegisteredQuery = "INSERT INTO users (username, password, role) VALUES ('$usernameRegistered', '$passwordARegistered', '$roleRegistered')";
-
-if (mysqli_query($db, $insertRegisteredQuery)) {
-    echo "Uživatel '$usernameRegistered' byl úspěšně vložen do databáze s rolí 'admin'.<br>";
-} else {
-    die('Chyba při vkládání uživatele: ' . mysqli_error($db));
-}
-
-
-$usernameBroker = 'Broker';
-$passwordABroker = 'Broker';
-$roleBroker = 'Broker';
-
-$insertBrokerQuery = "INSERT INTO users (username, password, role) VALUES ('$usernameBroker', '$passwordABroker', '$roleBroker')";
-
-
-if (mysqli_query($db, $insertBrokerQuery)) {
-    echo "Uživatel '$usernameBroker' byl úspěšně vložen do databáze s rolí 'broker'.<br>";
-} else {
-    die('Chyba při vkládání uživatele: ' . mysqli_error($db));
-}
-
 
 
 // Získání hodnot z formuláře (pokud byl formulář odeslán)
@@ -95,22 +91,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Ověření, zda uživatel existuje
         if (mysqli_num_rows($result) == 1) {
             // Uživatel byl nalezen, můžete provést přihlášení
+            $user = mysqli_fetch_assoc($result);
     
             $_SESSION['username'] = $username;
+            $_SESSION['role'] = $user['role']; // Přidejte roli do session
     
             // Logování do konzole
-            echo "Uživatel '$username' se přihlásil jako registrovaný uživatel.";
-            header('Location: welcome.php '); // Přesměrování na uvítací stránku pro registrovaného uživatele
+            echo "Uživatel '$username' se přihlásil jako registrovaný uživatel s rolí '{$user['role']}'.";
+            header('Location: welcome.php'); // Přesměrování na uvítací stránku pro registrovaného uživatele
             exit(); // Ukončení provádění skriptu
         } else {
-            // Vytvoření chybové zprávy
-            $error_message = 'Nesprávné uživatelské jméno nebo heslo.';
-    
-            // JavaScript pro zobrazení chybového okna s tlačítkem pro návrat na index.html
-            echo '<script>';
-            echo 'alert("' . $error_message . '");'; // Zobrazíme chybovou zprávu
-            echo 'window.location.href = "index.html";'; // Přesměrování na index.html
-            echo '</script>';
+            $query = "SELECT * FROM users";
+
+                $result = mysqli_query($db, $query);
+
+                if (!$result) {
+                    die('Chyba dotazu: ' . mysqli_error($db));
+                }
+
+                // Výpis tabulky uživatelů
+                echo '<h2>Seznam uživatelů</h2>';
+                echo '<table>';
+                echo '<tr><th>ID</th><th>Uživatelské jméno</th><th>Heslo</th><th>Role</th></tr>';
+
+                while ($row = mysqli_fetch_assoc($result)) {
+                    echo '<tr>';
+                    echo '<td>' . $row['id'] . '</td>';
+                    echo '<td>' . $row['username'] . '</td>';
+                    echo '<td>' . $row['password'] . '</td>';
+                    echo '<td>' . $row['role'] . '</td>';
+                    echo '</tr>';
+                }
+
+                echo '</table>';
         }
     } elseif (isset($_POST['guestLoginBtn'])) {
         // Pokud bylo stisknuto tlačítko "Přihlásit se jako Host"
@@ -125,6 +138,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             echo "Uživatel '$username' s rolí 'guest' byl úspěšně vložen do databáze.<br>";
     
             $_SESSION['username'] = $username;
+            $_SESSION['role'] = 'guest';
+
             // Logování do konzole
             echo "Uživatel '$username' se přihlásil jako host.";
             header('Location: welcome.php'); // Přesměrování na uvítací stránku pro registrovaného uživatele

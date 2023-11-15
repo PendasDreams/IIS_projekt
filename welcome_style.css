@@ -1,8 +1,143 @@
-/* style.css */
+/* styles.css */
 .user-bar {
     background-color: blue;
     color: white;
     padding: 10px;
     text-align: right;
-    font-family: Arial, Helvetica, sans-serif; /* Nastavíme pěkný font */
+}
+
+.centered-buttons {
+    text-align: center;
+    margin-top: 20px; /* Vertikální odsazení od vrchního okraje */
+    display: flex;
+    flex-direction: column; /* Obsah bude pod sebou */
+    align-items: center; /* Uprostřed obsahu na středu stránky */
+}
+
+.centered-buttons h2 {
+    background-color: #FF5733; /* Změňte na požadovanou barvu */
+    color: white;
+    border-radius: 10px; /* Zaoblené rohy */
+    padding: 10px;
+    margin: 10px;
+    width: 90%; /* Roztáhne nadpis na celou šířku */
+    text-align: center; /* Zarovná text na střed */
+}
+
+.centered-buttons a {
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: rgb(0, 225, 255);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* Styly pro tabulku s uživateli */
+table {
+    width: 100%; /* Roztáhne tabulku na celou šířku obsahu */
+    border-collapse: collapse; /* Sloučí okraje buněk */
+    margin-top: 20px; /* Vertikální odsazení od nadpisu */
+}
+
+table, th, td {
+    border: 1px solid #ccc; /* Ohraničení buněk */
+    text-align: center; /* Zarovnání textu na střed buněk */
+    padding: 8px; /* Vnitřní odsazení buněk */
+}
+
+th {
+    background-color: #FF5733; /* Barva pozadí pro hlavičku tabulky */
+    color: white;
+}
+.user-form {
+    width: 300px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.form-group {
+    margin-bottom: 10px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.btn-submit {
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* Stylizace tlačítka pro smazání */
+.delete-button {
+    background-color: #ff0000; /* Červená barva pozadí */
+    color: #fff; /* Bílá barva textu */
+    border: none;
+    padding: 5px 8px; /* Zmenšeno o 2px v šířce */
+    cursor: pointer;
+    margin: auto auto; /* Zarovnání na střed horizontálně a vertikálně */
+    display: block; /* Zobrazit tlačítko jako blokový prvek */
+    border-radius: 5px;
+
+}
+
+/* Stylizace hlavičky tabulky */
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+th {
+    background-color: #ff0000; /* Červená barva pozadí pro hlavičku */
+    color: #fff; /* Bílá barva textu pro hlavičku */
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+/* Zarovnání tlačítek na střed */
+.button-cell {
+    text-align: center;
+}
+
+.edit-button {
+    background-color: #007bff; /* Modrá barva pozadí */
+    color: #fff; /* Bílá barva textu */
+    border: none;
+    padding: 5px 8px;
+    cursor: pointer;
+    margin: auto auto;
+    display: block;
+    border-radius: 5px;
+}
+
+.edit-button:hover {
+    background-color: #0056b3; /* Barva pozadí při najetí myší */
 }
