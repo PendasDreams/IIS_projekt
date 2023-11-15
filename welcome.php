@@ -1,14 +1,36 @@
 <?php
 session_start();
 
-// Zkontrolujte, zda je uživatel přihlášen
-if (!isset($_SESSION['username'])) {
-    header('Location: login.html'); // Pokud uživatel není přihlášen, přesměrujte jej na přihlašovací stránku
-    exit();
+// Připojení k databázi
+$db = mysqli_init();
+if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
-// Pokud je uživatel přihlášen, zobrazte uvítací zprávu
-echo 'Vítejte, ' . $_SESSION['username'] . '!';
+// Dotaz pro výpis všech uživatelů
+$query = "SELECT * FROM users";
 
-// Můžete zde zobrazit další obsah pro přihlášeného uživatele
+$result = mysqli_query($db, $query);
+
+if (!$result) {
+    die('Chyba dotazu: ' . mysqli_error($db));
+}
+
+// Výpis tabulky uživatelů
+
+echo '<h2>Příhlášení proběho zprávně</h2>';
+echo '<table>';
+echo '<tr><th>ID</th><th>Uživatelské jméno</th><th>Heslo</th></tr>';
+
+while ($row = mysqli_fetch_assoc($result)) {
+    echo '<tr>';
+    echo '<td>' . $row['id'] . '</td>';
+    echo '<td>' . $row['username'] . '</td>';
+    echo '<td>' . $row['password'] . '</td>';
+    echo '</tr>';
+}
+
+echo '</table>';
+
+mysqli_close($db);
 ?>
