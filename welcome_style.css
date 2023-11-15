@@ -1,0 +1,8 @@
+/* style.css */
+.user-bar {
+    background-color: blue;
+    color: white;
+    padding: 10px;
+    text-align: right;
+    font-family: Arial, Helvetica, sans-serif; /* Nastavíme pěkný font */
+}

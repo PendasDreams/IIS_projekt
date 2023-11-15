@@ -7,31 +7,28 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
-// Dotaz pro výpis všech uživatelů
-$query = "SELECT * FROM users";
+// Dotaz pro výpis aktuálně přihlášeného uživatele
+$currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
+$currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-$result = mysqli_query($db, $query);
+?>
 
-if (!$result) {
-    die('Chyba dotazu: ' . mysqli_error($db));
-}
+<html>
+<head>
+    <title>Přihlášení</title>
+    <link rel="stylesheet" type="text/css" href="welcome_style.css"> <!-- Import stylů z externího souboru -->
+</head>
+<body>
+    <div class="user-bar">
+        <?php if ($currentUsername) : ?>
+            Přihlášený uživatel: <?= $currentUsername ?>
+        <?php else : ?>
+            Není žádný uživatel přihlášen.
+        <?php endif; ?>
+    </div>
+</body>
+</html>
 
-// Výpis tabulky uživatelů
-
-echo '<h2>Příhlášení proběho zprávně</h2>';
-echo '<table>';
-echo '<tr><th>ID</th><th>Uživatelské jméno</th><th>Heslo</th><th>Role</th></tr>';
-
-while ($row = mysqli_fetch_assoc($result)) {
-    echo '<tr>';
-    echo '<td>' . $row['id'] . '</td>';
-    echo '<td>' . $row['username'] . '</td>';
-    echo '<td>' . $row['password'] . '</td>';
-    echo '<td>' . $row['role'] . '</td>';
-    echo '</tr>';
-}
-
-echo '</table>';
-
+<?php
 mysqli_close($db);
 ?>
