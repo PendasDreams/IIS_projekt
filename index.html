@@ -5,18 +5,41 @@
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-    <div class="container"> <!-- Nový kontejner pro centrování obsahu -->
-        <h2 class="login-heading">Přihlášení</h2>
-
-        <form method="POST" action="login.php">
+    <div class="container">
+        <form method="POST" action="login.php" id="userLoginForm"> <!-- Formulář pro registrované uživatele -->
             <label for="username">Uživatelské jméno:</label>
             <input type="text" id="username" name="username" required><br>
 
             <label for="password">Heslo:</label>
             <input type="password" id="password" name="password" required><br>
 
-            <input type="submit" value="Přihlásit se">
+            <div class="button-container"> <!-- Kontejner pro tlačítko pro registrované uživatele -->
+                <input type="submit" value="Přihlásit se jako registrovaný uživatel" name="userLoginBtn">
+            </div>
         </form>
-    </div> <!-- Konec kontejneru -->
+
+        <form method="POST" action="login.php" id="guestLoginForm"> <!-- Formulář pro hosty -->
+            <div class="button-container"> <!-- Kontejner pro tlačítko pro hosty -->
+                <input type="submit" value="Přihlásit se jako Host" name="guestLoginBtn">
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Získejte odkazy na tlačítka a pole pro uživatelské jméno a heslo
+        var userLoginForm = document.getElementById('userLoginForm');
+        var guestLoginForm = document.getElementById('guestLoginForm');
+        var usernameInput = document.getElementById('username');
+        var passwordInput = document.getElementById('password');
+
+        // Přidejte posluchače události pro odeslání formuláře pro registrované uživatele
+        userLoginForm.addEventListener('submit', function (event) {
+            // Zkontrolujte, zda jsou pole pro uživatelské jméno a heslo vyplněna
+            if (usernameInput.value.trim() === '' || passwordInput.value.trim() === '') {
+                event.preventDefault(); // Zabrání odeslání formuláře
+                alert('Vyplňte prosím uživatelské jméno a heslo.');
+            }
+        });
+    </script>
 </body>
 </html>

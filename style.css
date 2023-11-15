@@ -1,5 +1,3 @@
-/* style.css */
-
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
@@ -40,6 +38,10 @@ input[type="password"] {
     border: 1px solid #ccc;
     border-radius: 3px;
     box-sizing: border-box;
+}
+
+.button-container {
+    text-align: center; /* Nový styl pro centrování tlačítek */
 }
 
 input[type="submit"] {

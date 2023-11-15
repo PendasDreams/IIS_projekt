@@ -18,7 +18,7 @@ if (!$result) {
 
 // Výpis tabulky uživatelů
 
-echo '<h2>Příhlášení proběho zprávně</h2>';
+echo '<h2>Hostrdy</h2>';
 echo '<table>';
 echo '<tr><th>ID</th><th>Uživatelské jméno</th><th>Heslo</th><th>Role</th></tr>';
 
