@@ -42,10 +42,9 @@ if (isset($_POST['addUser'])) {
             // Uživatel byl úspěšně přidán
             echo "Uživatel '$newUsername' byl úspěšně přidán.";
             header('Location: welcome.php'); // Přesměrování na stránku se seznamem uživatelů
-
         } else {
             // Chyba při vkládání uživatele
-            echo 'Chyba při přidávání uživatele: ' . mysqli_error($db);
+            $errorMessage = 'Chyba při přidávání uživatele: ' . mysqli_error($db);
         }
     } else {
         // Neplatná role
@@ -68,35 +67,71 @@ if (isset($_POST['deleteUser'])) {
     }
 }
 
+
+if (isset($_POST['loadEditForm'])) {
+    // Pokud bylo stisknuto tlačítko "Upravit"
+    $editUserId = mysqli_real_escape_string($db, $_POST['editUserId']);
+
+    // Získání údajů o uživateli pro úpravu
+    $query = "SELECT * FROM users WHERE id = '$editUserId'";
+    $userResult = mysqli_query($db, $query);
+
+    if ($userResult) {
+        $user = mysqli_fetch_assoc($userResult);
+    }
+}
+
+
+if (isset($_POST['editUser'])) {
+    $editUserId = mysqli_real_escape_string($db, $_POST['editUserId']);
+    $editedUsername = mysqli_real_escape_string($db, $_POST['editedUsername']);
+    $editedPassword = mysqli_real_escape_string($db, $_POST['editedPassword']);
+    $editedRole = mysqli_real_escape_string($db, $_POST['editedRole']);
+
+    // Kontrola, zda je zadaná role v seznamu povolených rolí
+    if (in_array($editedRole, $allowedRoles)) {
+        // SQL dotaz pro aktualizaci údajů uživatele v databázi
+        $editUserQuery = "UPDATE users SET username = '$editedUsername', password = '$editedPassword', role = '$editedRole' WHERE id = '$editUserId'";
+
+        if (mysqli_query($db, $editUserQuery)) {
+            echo "Uživatel s ID $editUserId byl úspěšně upraven.";
+            header('Location: welcome.php'); // Přesměrování na stránku se seznamem uživatelů
+        } else {
+            // Chyba při úpravě uživatele
+            $errorMessage = 'Chyba při úpravě uživatele: ' . mysqli_error($db);
+        }
+    } else {
+        // Neplatná role
+        $errorMessage = 'Zadaná role není platná. Povolené role jsou: ' . implode(', ', $allowedRoles);
+    }
+}
+
+
+
+
 ?>
 
-<!-- HTML kód -->
-
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Funkce pro načtení formuláře pro úpravu uživatele pomocí AJAX
-        function loadEditUserForm(userId) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', 'edit_user_form.php?editUserId=' + userId, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    // Vložení HTML formuláře do <div> s id "editUserForm"
-                    document.getElementById('editUserForm').innerHTML = xhr.responseText;
-                }
-            };
-            xhr.send();
-        }
-
-        // Zachytávání kliknutí na tlačítka "Upravit"
-        var editButtons = document.querySelectorAll('.edit-button');
-        editButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
-                var userId = this.getAttribute('data-userid');
-                loadEditUserForm(userId);
-            });
-        });
-    });
+document.addEventListener("DOMContentLoaded", function() {
+    // Zkontrolujeme, zda byl odeslán formulář
+    var urlParams = new URLSearchParams(window.location.search);
+    var submitted = urlParams.get("submitted");
+    
+    if (submitted) {
+        // Počkejme nějaký čas, než se stránka znovunačte (např. 100 ms)
+        setTimeout(function() {
+            // Najdeme prvek formuláře úpravy uživatele
+            var editForm = document.querySelector(".user-form");
+            
+            // Scrollujeme dolů na tento prvek
+            if (editForm) {
+                editForm.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+        }, 100);
+    }
+});
 </script>
+
 
 <html>
 <head>
@@ -121,36 +156,82 @@ if (isset($_POST['deleteUser'])) {
         <!-- Zde můžete přidat obsah pro sekci "Systémy" -->
         <h2>Uživatelé</h2> <!-- Nadpis pro sekci "Uživatelé" -->
 
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Uživatelské jméno</th>
-                <th>Heslo</th>
-                <th>Role</th>
-                <th>Smazat</th>
-                <th>Upravit</th> <!-- Přidán sloupec pro tlačítko "Upravit" -->
-            </tr>
-            <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+        <?php
+        // Dotaz pro výpis všech uživatelů
+        $query = "SELECT * FROM users";
+        $result = mysqli_query($db, $query);
+
+        if (!$result) {
+            die('Chyba dotazu: ' . mysqli_error($db));
+        }
+        ?>
+
+            <table>
                 <tr>
-                    <td><?= $row['id'] ?></td>
-                    <td><?= $row['username'] ?></td>
-                    <td><?= $row['password'] ?></td>
-                    <td><?= $row['role'] ?></td>
-                    <td>
-                        <form method="POST" action="">
-                            <input type="hidden" name="deleteUserId" value="<?= $row['id'] ?>">
-                            <button class="delete-button" type="submit" name="deleteUser">Smazat</button>
-                        </form>
-                    </td>
-                    <td>
-                        <form method="POST" action="">
-                            <input type="hidden" name="editUserId" value="<?= $row['id'] ?>">
-                            <button class="edit-button" type="button" name="editUser" data-userid="<?= $row['id'] ?>">Upravit</button>
-                        </form>
-                    </td>
+                    <th>ID</th>
+                    <th>Uživatelské jméno</th>
+                    <th>Heslo</th>
+                    <th>Role</th>
+                    <th>Smazat</th>
+                    <th>Upravit</th> <!-- Přidán sloupec pro tlačítko "Upravit" -->
                 </tr>
-            <?php endwhile; ?>
-        </table>
+                <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+                    <tr>
+                        <td><?= $row['id'] ?></td>
+                        <td><?= $row['username'] ?></td>
+                        <td><?= $row['password'] ?></td>
+                        <td><?= $row['role'] ?></td>
+                        <td>
+                            <form method="POST" action="">
+                                <input type="hidden" name="deleteUserId" value="<?= $row['id'] ?>">
+                                <button class="delete-button" type="submit" name="deleteUser">Smazat</button>
+                            </form>
+                        </td>
+                        <td>
+                        <form method="POST" action="" onsubmit="scrollToEditForm()">
+                            <input type="hidden" name="editUserId" value="<?= $row['id'] ?>">
+                            <button class="edit-button" type="submit" name="loadEditForm">Upravit</button>
+                        </form>
+                        </td>
+
+                    </tr>
+                <?php endwhile; ?>
+            </table>
+
+
+
+            <?php if (!empty($errorMessage)) : ?>
+                <div class="error-message">
+                    <p><?= $errorMessage ?></p>
+                </div>
+            <?php endif; ?>
+
+            <!-- Formulář pro úpravu uživatele -->
+            <h2>Úprava uživatele</h2>
+            <form class="user-form" method="POST" action="">
+                <div class="form-group">
+                    <label for="editedUsername">Uživatelské jméno:</label>
+                    <input type="text" id="editedUsername" name="editedUsername" required value="<?= isset($user) ? $user['username'] : '' ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="editedPassword">Heslo:</label>
+                    <input type="password" id="editedPassword" name="editedPassword" required value="<?= isset($user) ? $user['password'] : '' ?>">
+                </div>
+
+                <div class="form-group">
+                    <label for="editedRole">Role:</label>
+                    <input type="text" id="editedRole" name="editedRole" required value="<?= isset($user) ? $user['role'] : '' ?>">
+                </div>
+
+                <!-- Skryté pole pro editovaného uživatele ID -->
+                <input type="hidden" name="editUserId" value="<?= isset($user) ? $user['id'] : '' ?>">
+
+                <div class="form-group">
+                    <button class="btn-submit" type="submit" name="editUser">Uložit změny</button>
+                </div>
+            </form>
+
 
             <h2>Přidat uživatele</h2>
             <form class="user-form" method="POST" action="">
@@ -174,13 +255,10 @@ if (isset($_POST['deleteUser'])) {
                 </div>
             </form>
 
-            <?php if (!empty($errorMessage)) : ?>
-                <div class="error-message">
-                    <?= $errorMessage ?>
-                </div>
-            <?php endif; ?>
 
-            <div id="editUserForm"></div> <!-- Místo, kam bude vložen formulář pro úpravu uživatele pomocí AJAX -->
+
+
+
 
 
 

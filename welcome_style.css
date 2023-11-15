@@ -148,3 +148,13 @@ tr:nth-child(even) {
 .edit-button:hover {
     background-color: #0056b3; /* Barva pozadí při najetí myší */
 }
+
+.error-message {
+    background-color: yellow; /* Žluté pozadí */
+    color: red; /* Červená barva textu */
+    padding: 10px; /* Vnitřní odsazení pro zlepšení vzhledu */
+    margin-top: 10px; /* Odsazení od nadřazeného obsahu */
+    border: 1px solid #ffcc00; /* Rámeček kolem chybové zprávy */
+    border-radius: 5px; /* Zaoblené rohy */
+    font-weight: bold; /* Tučné písmo */
+}

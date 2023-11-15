@@ -101,29 +101,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header('Location: welcome.php'); // Přesměrování na uvítací stránku pro registrovaného uživatele
             exit(); // Ukončení provádění skriptu
         } else {
-            $query = "SELECT * FROM users";
-
-                $result = mysqli_query($db, $query);
-
-                if (!$result) {
-                    die('Chyba dotazu: ' . mysqli_error($db));
-                }
-
-                // Výpis tabulky uživatelů
-                echo '<h2>Seznam uživatelů</h2>';
-                echo '<table>';
-                echo '<tr><th>ID</th><th>Uživatelské jméno</th><th>Heslo</th><th>Role</th></tr>';
-
-                while ($row = mysqli_fetch_assoc($result)) {
-                    echo '<tr>';
-                    echo '<td>' . $row['id'] . '</td>';
-                    echo '<td>' . $row['username'] . '</td>';
-                    echo '<td>' . $row['password'] . '</td>';
-                    echo '<td>' . $row['role'] . '</td>';
-                    echo '</tr>';
-                }
-
-                echo '</table>';
+            // Vytvoření chybové zprávy
+            $error_message = 'Nesprávné uživatelské jméno nebo heslo.';
+    
+            // JavaScript pro zobrazení chybového okna s tlačítkem pro návrat na index.html
+            echo '<script>';
+            echo 'alert("' . $error_message . '");'; // Zobrazíme chybovou zprávu
+            echo 'window.location.href = "index.html";'; // Přesměrování na index.html
+            echo '</script>';
         }
     } elseif (isset($_POST['guestLoginBtn'])) {
         // Pokud bylo stisknuto tlačítko "Přihlásit se jako Host"
