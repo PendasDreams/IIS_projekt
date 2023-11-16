@@ -23,7 +23,7 @@ if (!$result) {
 
 // Zpracování formuláře pro přidání uživatele
 // Pole povolených rolí
-$allowedRoles = array('admin', 'registered', 'broker');
+$allowedRoles = array('admin', 'registered', 'broker', 'guest');
 
 $errorMessage = ''; // Inicializace chybové zprávy prázdnou hodnotou
 
@@ -169,7 +169,9 @@ document.addEventListener("DOMContentLoaded", function() {
 <body>
 <div class="user-bar">
     <!-- Tlačítko "Systémy" na levé straně -->
+    <a href="editusers.php" class="system-button">Uživatelé</a>
     <a href="system.php" class="system-button">Systémy</a>
+    <a href="devices.php" class="system-button">Zařízení</a>
 
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>

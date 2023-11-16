@@ -194,3 +194,9 @@ tr:nth-child(even) {
 .system-button:hover {
     background-color: darkred; /* Červená barva pozadí při najetí myší */
 }
+
+input[type="text"],
+textarea {
+    max-width: 250px; /* Nastavte maximální šířku textových polí podle potřeby */
+    text-align: left; /* Zarovnání textu doleva */
+}

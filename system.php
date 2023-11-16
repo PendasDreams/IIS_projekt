@@ -96,6 +96,8 @@ if (!$result) {
 
 <div class="user-bar">
     <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="system.php" class="system-button">Systémy</a>
+    <a href="devices.php" class="system-button">Zařízení</a>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>

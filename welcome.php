@@ -33,6 +33,9 @@ if (isset($_POST['logout'])) {
 </head>
 <body>
 <div class="user-bar">
+    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="system.php" class="system-button">Systémy</a>
+    <a href="devices.php" class="system-button">Zařízení</a>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
@@ -51,6 +54,8 @@ if (isset($_POST['logout'])) {
         <!-- Zde můžete přidat obsah pro sekci "Systémy" -->
         
         <h2><a href="system.php">Systémy</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
+
+        <h2><a href="devices.php">Zařízení</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
     </div>
 <?php endif; ?>
 
