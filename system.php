@@ -40,6 +40,24 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
+$sql = "CREATE TABLE IF NOT EXISTS systems (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    admin_id INT NOT NULL,
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+)";
+
+$sql = "CREATE TABLE IF NOT EXISTS system_devices (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    system_id INT NOT NULL,
+    device_id INT NOT NULL,
+    FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
+    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
+)";
+
+
+
 // Zpracování formuláře pro přidání systému
 if (isset($_POST['addSystem'])) {
     $newSystemName = mysqli_real_escape_string($db, $_POST['newSystemName']);
@@ -143,6 +161,7 @@ if (!$result) {
         <th>ID admina</th>
         <th>Smazat</th>
         <th>Upravit</th>
+        <th>Seznam zařízení</th>
         <th>Sdílet</th>
     </tr>
     <?php while ($row = mysqli_fetch_assoc($result)) : ?>
@@ -161,6 +180,12 @@ if (!$result) {
                 <form method="POST" action="edit_systems.php">
                     <input type="hidden" name="editSystemId" value="<?= $row['id'] ?>">
                     <button class="edit-button" type="submit" name="loadEditSystem">Upravit</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="devices_in_system.php"> <!-- Nastavte akci na stránku pro zobrazení zařízení v systému -->
+                    <input type="hidden" name="systemId" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="viewDevices">Zobrazit zařízení</button>
                 </form>
             </td>
             <td>

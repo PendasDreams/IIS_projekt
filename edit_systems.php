@@ -56,7 +56,45 @@ if (isset($_POST['saveChanges'])) {
     }
 }
 
+if (isset($_POST['addToSystem'])) {
+    $deviceId = mysqli_real_escape_string($db, $_POST['deviceId']);
+    $systemId = mysqli_real_escape_string($db, $_POST['systemId']);
+
+    // Kontrola, zda zařízení již není přidáno do systému
+    $checkQuery = "SELECT COUNT(*) as count FROM system_devices WHERE system_id = '$systemId' AND device_id = '$deviceId'";
+    $checkResult = mysqli_query($db, $checkQuery);
+
+    if (!$checkResult) {
+        die('Chyba dotazu: ' . mysqli_error($db));
+    }
+
+    $checkRow = mysqli_fetch_assoc($checkResult);
+    if ($checkRow['count'] > 0) {
+        echo "Toto zařízení je již přidáno do systému.";
+    } else {
+        // Vložení zařízení do systému
+        $insertQuery = "INSERT INTO system_devices (system_id, device_id) VALUES ('$systemId', '$deviceId')";
+
+        if (mysqli_query($db, $insertQuery)) {
+            echo "Zařízení bylo úspěšně přidáno do systému.";
+        } else {
+            echo 'Chyba při přidávání zařízení do systému: ' . mysqli_error($db);
+        }
+    }
+}
+
+
+// SQL dotaz pro získání dat ze tabulky "devices"
+$selectQuery = "SELECT * FROM devices";
+
+// Vykonání dotazu
+$result = mysqli_query($db, $selectQuery);
+
+if (!$result) {
+    die('Chyba dotazu: ' . mysqli_error($db));
+}
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -82,6 +120,44 @@ if (isset($_POST['saveChanges'])) {
         <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
 </div>
+
+
+<div class="centered-form">
+    <h2>Seznam zařízení</h2>
+    <table class="device-table">
+    <tr>
+        <th>ID</th>
+        <th>Název zařízení</th>
+        <th>Typ zařízení</th>
+        <th>Popis zařízení</th>
+        <th>Uživatelský alias</th>
+        <th>Hodnota</th>
+        <th>Jednotka</th>
+        <th>Interval údržby (dny)</th>
+        <th>Akce</th> <!-- Nový sloupec pro tlačítko "Přidat do systému" -->
+    </tr>
+
+    <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+        <tr>
+            <td><?= $row['id'] ?></td>
+            <td><?= $row['device_name'] ?></td>
+            <td><?= $row['device_type'] ?></td>
+            <td><?= $row['device_description'] ?></td>
+            <td><?= $row['user_alias'] ?></td>
+            <td><?= $row['hodnota'] ?></td>
+            <td><?= $row['jednotka'] ?></td>
+            <td><?= $row['maintenance_interval'] ?></td>
+            <td>
+                <form method="POST" action="edit_systems.php"> <!-- Nastavte akci na stránku pro přidání zařízení do systému -->
+                    <input type="hidden" name="deviceId" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="addToSystem">Přidat do systému</button>
+                </form>
+            </td>
+        </tr>
+    <?php endwhile; ?>
+</table>
+</div>
+
 
 <div class="centered-form">
     <h2>Upravit systém</h2>
