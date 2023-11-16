@@ -187,16 +187,12 @@ if (!$result) {
                 </form>
             </td>
             <td>
+                <!-- Tlačítko pro úpravu systému -->
                 <form method="POST" action="edit_systems.php">
                     <input type="hidden" name="editSystemId" value="<?= $row['id'] ?>">
-                    <?php
-                    $_SESSION['systemData'] = [
-                        'id' => $row['id'],
-                        'name' => $row['name'],
-                        'description' => $row['description'],
-                        'admin_id' => $row['admin_id']
-                    ];
-                    ?>
+                    <input type="hidden" name="editSystemName" value="<?= $row['name'] ?>">
+                    <input type="hidden" name="editSystemDescription" value="<?= $row['description'] ?>">
+                    <input type="hidden" name="editSystemAdminID" value="<?= $row['admin_id'] ?>">
                     <button class="edit-button" type="submit" name="loadEditSystem">Upravit</button>
                 </form>
             </td>
