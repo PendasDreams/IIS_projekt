@@ -40,7 +40,8 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
-$sql = "CREATE TABLE IF NOT EXISTS systems (
+// Dotaz pro vytvoření tabulky "systems" (pokud neexistuje)
+$createSystemsTableQuery = "CREATE TABLE IF NOT EXISTS systems (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
@@ -48,13 +49,22 @@ $sql = "CREATE TABLE IF NOT EXISTS systems (
     FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 )";
 
-$sql = "CREATE TABLE IF NOT EXISTS system_devices (
+if (!mysqli_query($db, $createSystemsTableQuery)) {
+    die('Chyba při vytváření tabulky systems: ' . mysqli_error($db));
+}
+
+// Dotaz pro vytvoření tabulky "system_devices" (pokud neexistuje)
+$createSystemDevicesTableQuery = "CREATE TABLE IF NOT EXISTS system_devices (
     id INT AUTO_INCREMENT PRIMARY KEY,
     system_id INT NOT NULL,
     device_id INT NOT NULL,
     FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
     FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
 )";
+
+if (!mysqli_query($db, $createSystemDevicesTableQuery)) {
+    die('Chyba při vytváření tabulky system_devices: ' . mysqli_error($db));
+}
 
 
 
@@ -179,6 +189,14 @@ if (!$result) {
             <td>
                 <form method="POST" action="edit_systems.php">
                     <input type="hidden" name="editSystemId" value="<?= $row['id'] ?>">
+                    <?php
+                    $_SESSION['systemData'] = [
+                        'id' => $row['id'],
+                        'name' => $row['name'],
+                        'description' => $row['description'],
+                        'admin_id' => $row['admin_id']
+                    ];
+                    ?>
                     <button class="edit-button" type="submit" name="loadEditSystem">Upravit</button>
                 </form>
             </td>
