@@ -171,6 +171,7 @@ if (!$result) {
         <th>ID admina</th>
         <th>Smazat</th>
         <th>Upravit</th>
+        <th>Přidat zařízení</th>
         <th>Seznam zařízení</th>
         <th>Sdílet</th>
     </tr>
@@ -194,6 +195,12 @@ if (!$result) {
                     <input type="hidden" name="editSystemDescription" value="<?= $row['description'] ?>">
                     <input type="hidden" name="editSystemAdminID" value="<?= $row['admin_id'] ?>">
                     <button class="edit-button" type="submit" name="loadEditSystem">Upravit</button>
+                </form>
+            </td>
+            <td>
+                <form method="POST" action="add_devices_to_system.php"> <!-- Přidat tlačítko pro přidání zařízení do systému -->
+                    <input type="hidden" name="addDeviceToSystem" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Přidat zařízení</button>
                 </form>
             </td>
             <td>

@@ -76,6 +76,9 @@ if (isset($_POST['updateSystem'])) {
         <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
 </div>
+
+
+
 <div class="centered-form">
 <h2>Upravit zařízení</h2>
 
