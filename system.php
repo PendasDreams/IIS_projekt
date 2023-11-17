@@ -172,7 +172,6 @@ if (!$result) {
         <th>Smazat</th>
         <th>Upravit</th>
         <th>Přidat zařízení</th>
-        <th>Seznam zařízení</th>
         <th>Sdílet</th>
     </tr>
     <?php while ($row = mysqli_fetch_assoc($result)) : ?>
@@ -201,12 +200,6 @@ if (!$result) {
                 <form method="POST" action="add_devices_to_system.php"> <!-- Přidat tlačítko pro přidání zařízení do systému -->
                     <input type="hidden" name="addDeviceToSystem" value="<?= $row['id'] ?>">
                     <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Přidat zařízení</button>
-                </form>
-            </td>
-            <td>
-                <form method="POST" action="devices_in_system.php"> <!-- Nastavte akci na stránku pro zobrazení zařízení v systému -->
-                    <input type="hidden" name="systemId" value="<?= $row['id'] ?>">
-                    <button class="edit-button" type="submit" name="viewDevices">Zobrazit zařízení</button>
                 </form>
             </td>
             <td>

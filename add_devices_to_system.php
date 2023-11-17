@@ -56,7 +56,7 @@ if ($systemId) {
 } else {
     // ID systému nebylo odesláno, můžete zde provést nějaké opatření, např. přesměrovat zpět na předchozí stránku s chybou
     echo "Chybějící ID systému.";
-}
+} 
 
 // Zpracování formuláře pro přidání zařízení do systému
 if (isset($_POST['add_to_system'])) {
