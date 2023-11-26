@@ -24,29 +24,93 @@ if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
+$editSystemId = null; // Initialize $editSystemId to null
 
-$editSystemId = isset($_POST['editSystemId']) ? $_POST['editSystemId'] : null;
+if (isset($_POST['editSystemId'])) {
+    // Assign POST value if available
+    $editSystemId = $_POST['editSystemId'];
+    // Store in session if the user is not 'admin'
+    if ($_SESSION['username'] != 'admin') {
+        $_SESSION['editSystemId'] = $editSystemId;
+    }
+} elseif (isset($_SESSION['editSystemId'])) {
+    // Use session value if POST value is not available
+    $editSystemId = $_SESSION['editSystemId'];
+}
+
 $editSystemName = isset($_POST['editSystemName']) ? $_POST['editSystemName'] : null;
 $editSystemDescription = isset($_POST['editSystemDescription']) ? $_POST['editSystemDescription'] : null;
+
+
+// Fetching users with access to the edited system
+if ($editSystemId) {
+    $accessQuery = "SELECT u.id, u.username FROM system_user_access sua
+                    JOIN users u ON sua.user_id = u.id
+                    WHERE sua.system_id = '$editSystemId' AND u.id != 0";
+    $accessResult = mysqli_query($db, $accessQuery);
+    $accessUsers = mysqli_fetch_all($accessResult, MYSQLI_ASSOC);
+}
+
+// Handle the removal of a user
+// if (isset($_POST['removeUser'])) {
+//     $userIdToRemove = mysqli_real_escape_string($db, $_POST['userId']);
+//     $systemIdToRemoveFrom = mysqli_real_escape_string($db, $_POST['systemId']);
+
+//     if ($systemIdToRemoveFrom == $editSystemId) {
+//         $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$systemIdToRemoveFrom'";
+//         mysqli_query($db, $removeQuery);
+
+//         // Refresh the list of users with access
+//         $accessQuery = "SELECT u.id, u.username FROM system_user_access sua
+//                         JOIN users u ON sua.user_id = u.id
+//                         WHERE sua.system_id = '$editSystemId' AND u.id != 0";
+//         $accessResult = mysqli_query($db, $accessQuery);
+//         $accessUsers = mysqli_fetch_all($accessResult, MYSQLI_ASSOC);
+
+//         header('Location: edit_systems.php');
+//         exit(); 
+//     }
+// }
+
+// Handle the removal of a user
+// if (isset($_POST['removeUser'])) {
+//     $userIdToRemove = mysqli_real_escape_string($db, $_POST['userId']);
+//     $systemId = mysqli_real_escape_string($db, $_POST['systemId']);
+//     $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$systemId'";
+//     mysqli_query($db, $removeQuery);
+
+//     // Redirect to refresh the page
+//     header('Location: edit_systems.php');
+//     exit();
+// }
 
 // Poté můžete tyto informace použít v formuláři pro úpravu systému
 
 
 if (isset($_POST['updateSystem'])) {
-    $editSystemId = isset($_POST['editSystemId']) ? $_POST['editSystemId'] : null;
-    $editSystemName = isset($_POST['editSystemName']) ? mysqli_real_escape_string($db, $_POST['editSystemName']) : null;
-    $editSystemDescription = isset($_POST['editSystemDescription']) ? mysqli_real_escape_string($db, $_POST['editSystemDescription']) : null;
-    $editSystemAdminID = isset($_POST['editSystemAdminID']) ? $_POST['editSystemAdminID'] : null; // Nový admin_id
+    $editSystemId = mysqli_real_escape_string($db, $_POST['editSystemId']);
+    $editSystemName = mysqli_real_escape_string($db, $_POST['editSystemName']);
+    $editSystemDescription = mysqli_real_escape_string($db, $_POST['editSystemDescription']);
+    $editSystemAdminID = mysqli_real_escape_string($db, $_POST['editSystemAdminID']);
 
-    // Aktualizovat informace o systému v databázi, včetně admin_id
-    $updateQuery = "UPDATE systems SET name = '$editSystemName', description = '$editSystemDescription', admin_id = $editSystemAdminID WHERE id = $editSystemId";
+    // Update system details
+    $updateQuery = "UPDATE systems SET name = '$editSystemName', description = '$editSystemDescription', admin_id = '$editSystemAdminID' WHERE id = '$editSystemId'";
+    mysqli_query($db, $updateQuery);
 
-    if (mysqli_query($db, $updateQuery)) {
-        echo "Informace o systému byly úspěšně aktualizovány.";
-    } else {
-        echo 'Chyba při aktualizaci informací o systému: ' . mysqli_error($db);
+    // Remove selected users
+    if (isset($_POST['usersToRemove'])) {
+        foreach ($_POST['usersToRemove'] as $userIdToRemove) {
+            $userIdToRemove = mysqli_real_escape_string($db, $userIdToRemove);
+            $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$editSystemId'";
+            mysqli_query($db, $removeQuery);
+        }
     }
+
+    // Redirect to refresh the page
+    header('Location: edit_systems.php');
+    exit();
 }
+
 
 
 
@@ -65,7 +129,7 @@ if (isset($_POST['updateSystem'])) {
     <a href="editusers.php" class="system-button">Uživatelé</a>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
-
+    <a href="manage_requests.php" class="system-button">Spravovat žádosti</a>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
@@ -99,11 +163,32 @@ if (isset($_POST['updateSystem'])) {
         <label for="editSystemAdminID">ID admina systému:</label>
         <input type="number" id="editSystemAdminID" name="editSystemAdminID" value="<?= $editSystemAdminID ?>" required>
     </div>
+    
+    <?php if (isset($accessUsers) && $accessUsers): ?>
+    <div class="system-users">
+        <h3 style="text-align:center;">Uživatelé s přístupem k systému: <?= htmlspecialchars($editSystemName) ?></h3>  
+        <table>
+            <tr>
+                <th>Uživatel</th>
+                <th>Odstránit</th>
+            </tr>
+            <?php foreach ($accessUsers as $user): ?>
+                <tr>
+                    <td style="text-align: center;"><?= htmlspecialchars($user['username']) ?></td>
+                    <td style="text-align: center;">
+                        <input type="checkbox" name="usersToRemove[]" value="<?= $user['id'] ?>">
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </div>
+    <?php endif; ?>
 
     <div class="form-group">
         <button class="btn-submit" type="submit" name="updateSystem">Uložit změny</button>
     </div>
 </form>
+
 
    
 </div>
