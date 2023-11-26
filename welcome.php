@@ -11,7 +11,7 @@ function logoutUser() {
 
 // Připojení k databázi
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
@@ -33,7 +33,12 @@ if (isset($_POST['logout'])) {
 </head>
 <body>
 <div class="user-bar">
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
     <?php if ($currentUsername) : ?>
@@ -47,25 +52,33 @@ if (isset($_POST['logout'])) {
     <?php endif; ?>
 </div>
 
-<?php if ($currentRole === 'admin') : ?>
-    <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
+<?php if ($currentRole === 'admin' || $currentRole === 'registered') : ?>
     <div class="centered-buttons">
-        <h2><a href="editusers.php">Uživatelé</a></h2> <!-- Nadpis "Systémy" jako odkaz na system.php -->
-        <!-- Zde můžete přidat obsah pro sekci "Systémy" -->
+        <h2><a href="editusers.php">Uživatelé</a></h2>
+        <?php
+            if ($currentRole === 'admin'){
+                echo '<div>Informace o uživatelých a jejich správa systému</div>';
+            }else{
+                echo '<div>Vám dostupné informace o uživatelých Jméno a Role </div>';
+            }
+        ?>
         
         <h2><a href="system.php">Systémy</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
-
+        <div>Vám dostupné informace o systémech Jméno, Popis, Admin a správa systému</div>
         <h2><a href="devices.php">Zařízení</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
+        <div>Vám dostupné informace o zařízeních Jméno, Popis, Alias, Typ, Jednotka, Interval údržby a správa zařízení</div>
     </div>
 <?php endif; ?>
 
 <!-- ... (váš stávající kód) ... -->
 
-<?php if ($currentRole !== 'admin') : ?>
-    <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
+<?php if ($currentRole !== 'admin' && $currentRole !== 'registered') : ?>
+    <div>Dobrý den, jste přihlášený jako host můžete si prohlížet zakladní informace o systémech a zařízeních</div>
     <div class="centered-buttons">
-        <h2>Systémy</h2> <!-- Nadpis pro sekci "Systémy" -->
-        <!-- Zde můžete přidat obsah pro sekci "Systémy" -->
+        <h2><a href="system.php">Systémy</a></h2>
+        <div>Vám dostupné informace o systémech Jméno, Popis, Admin</div>
+        <h2><a href="devices.php">Zařízení</a></h2>
+        <div>Vám dostupné informace o zařízeních Jméno, Typ, Popis</div>
     </div>
 <?php endif; ?>
 

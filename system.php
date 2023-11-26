@@ -36,37 +36,9 @@ if (isset($_POST['logout'])) {
 
 // Připojení k databázi
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
-
-// Dotaz pro vytvoření tabulky "systems" (pokud neexistuje)
-$createSystemsTableQuery = "CREATE TABLE IF NOT EXISTS systems (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    admin_id INT NOT NULL,
-    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-)";
-
-if (!mysqli_query($db, $createSystemsTableQuery)) {
-    die('Chyba při vytváření tabulky systems: ' . mysqli_error($db));
-}
-
-// Dotaz pro vytvoření tabulky "system_devices" (pokud neexistuje)
-$createSystemDevicesTableQuery = "CREATE TABLE IF NOT EXISTS system_devices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    system_id INT NOT NULL,
-    device_id INT NOT NULL,
-    FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
-    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
-)";
-
-if (!mysqli_query($db, $createSystemDevicesTableQuery)) {
-    die('Chyba při vytváření tabulky system_devices: ' . mysqli_error($db));
-}
-
-
 
 // Zpracování formuláře pro přidání systému
 if (isset($_POST['addSystem'])) {
@@ -104,7 +76,8 @@ if (isset($_POST['deleteSystem'])) {
 }
 
 // Dotaz pro získání všech systémů
-$query = "SELECT * FROM systems";
+$query = "SELECT s.id, s.name, s.description, s.admin_id, u.username
+    FROM systems as s, users as u WHERE s.admin_id = u.id;";
 
 $result = mysqli_query($db, $query);
 
@@ -123,7 +96,12 @@ if (!$result) {
 <body>
 
 <div class="user-bar">
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
     <?php if ($currentUsername) : ?>
@@ -137,9 +115,8 @@ if (!$result) {
     <?php endif; ?>
 </div>
 
+<?php if($currentRole == "admin"):?>
 <div class="centered-buttons">
-
-
 <h2>Přidat systém</h2>
 <form class="user-form" method="POST" action="">
     <div class="form-group">
@@ -161,25 +138,28 @@ if (!$result) {
         <button class="btn-submit" type="submit" name="addSystem">Přidat systém</button>
     </div>
 </form>
+<?php endif;?>
 
 <h2>Seznam všech systémů</h2>
 <table>
     <tr>
-        <th>ID</th>
         <th>Název systému</th>
         <th>Popis</th>
-        <th>ID admina</th>
-        <th>Smazat</th>
-        <th>Upravit</th>
-        <th>Přidat zařízení</th>
-        <th>Sdílet</th>
+        <th>Admin</th>
+        <?php if($currentRole != "guest"):?>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <?php endif;?>
     </tr>
     <?php while ($row = mysqli_fetch_assoc($result)) : ?>
         <tr>
-            <td><?= $row['id'] ?></td>
             <td><?= $row['name'] ?></td>
             <td><?= $row['description'] ?></td>
-            <td><?= $row['admin_id'] ?></td>
+            <td><?= $row['username'] ?></td>
+            <?php if($currentRole != "guest"):?>
             <td>
                 <form method="POST" action="">
                     <input type="hidden" name="deleteSystemId" value="<?= $row['id'] ?>">
@@ -208,6 +188,14 @@ if (!$result) {
                     <button class="edit-button" type="submit" name="loadEditSystem">Sdílet</button>
                 </form>
             </td>
+            <td>
+                <form method="POST" action="kpi.php">
+                    <input type="hidden" name="KPI" value="<?= $row['admin_id'] ?>">
+                    <input type="hidden" name="systemID" value="<?= $row['id'] ?>">
+                    <button class="edit-button" type="submit" name="loadKPI">KPI</button>
+                </form>
+            </td>
+            <?php endif;?>
         </tr>
     <?php endwhile; ?>
 </table>

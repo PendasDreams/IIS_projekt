@@ -4,22 +4,13 @@ session_start();
 
 // Připojení k databázi
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
 // Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
-
-// Dotaz pro výpis všech uživatelů
-$query = "SELECT * FROM users";
-
-$result = mysqli_query($db, $query);
-
-if (!$result) {
-    die('Chyba dotazu: ' . mysqli_error($db));
-}
 
 // Zpracování formuláře pro přidání uživatele
 // Pole povolených rolí
@@ -169,7 +160,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <body>
 <div class="user-bar">
     <!-- Tlačítko "Systémy" na levé straně -->
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
 
@@ -187,35 +183,28 @@ document.addEventListener("DOMContentLoaded", function() {
     <?php endif; ?>
 </div>
 
-    <?php if ($currentRole === 'admin') : ?>
+<?php if ($currentRole === 'admin') : ?>
     <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
     <div class="centered-buttons">
-
-
         <?php
         // Dotaz pro výpis všech uživatelů
-        $query = "SELECT * FROM users";
+        $query = "SELECT u.id, u.username, u.password, r.role FROM users as u, roles as r WHERE u.role = r.id";
         $result = mysqli_query($db, $query);
 
         if (!$result) {
             die('Chyba dotazu: ' . mysqli_error($db));
         }
         ?>
-
             <table>
                 <tr>
-                    <th>ID</th>
                     <th>Uživatelské jméno</th>
-                    <th>Heslo</th>
                     <th>Role</th>
                     <th>Smazat</th>
                     <th>Upravit</th> <!-- Přidán sloupec pro tlačítko "Upravit" -->
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) : ?>
                     <tr>
-                        <td><?= $row['id'] ?></td>
                         <td><?= $row['username'] ?></td>
-                        <td><?= $row['password'] ?></td>
                         <td><?= $row['role'] ?></td>
                         <td>
                             <form method="POST" action="">
@@ -290,17 +279,35 @@ document.addEventListener("DOMContentLoaded", function() {
                     <button class="btn-submit" type="submit" name="addUser">Přidat uživatele</button>
                 </div>
             </form>
+    </div>
 
-
-<?php endif; ?>
-
-<?php if ($currentRole !== 'admin') : ?>
-    <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
+<?php 
+    endif;
+    if ($currentRole != 'admin') :
+        if($currentRole == 'registered'):
+            $query = "SELECT u.id, u.username, r.role FROM users as u, roles as r WHERE u.role = r.id";
+            $result = mysqli_query($db, $query);
+?>
     <div class="centered-buttons">
-        <h2>Systémy</h2> <!-- Nadpis pro sekci "Systémy" -->
-        <!-- Zde můžete přidat obsah pro sekci "Systémy" -->
+    <table>
+    <tr>
+        <th>Uživatelské jméno</th>
+        <th>Role</th>
+    </tr>
+        <?php while ($row = mysqli_fetch_assoc($result)) : ?>
+            <tr>
+            <td><?= $row['username'] ?></td>
+            <td><?= $row['role'] ?></td>
+            </tr>
+        <?php endwhile; ?>
+    </table>
+    </div>
 
-<?php endif; ?>
+<?php else :
+        header('Location: welcome.php');
+    endif;
+endif;
+?>
 
 </div>
 

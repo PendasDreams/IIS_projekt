@@ -22,40 +22,9 @@ if (isset($_POST['logout'])) {
 
 // Připojení k databázi
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
-
-// // SQL dotaz pro smazání tabulky "devices"
-// $dropTableQuery = "DROP TABLE IF EXISTS devices";
-
-// // Odstranění tabulky
-// if (mysqli_query($db, $dropTableQuery)) {
-//     echo "Tabulka zařízení byla úspěšně smazána.";
-// } else {
-//     echo "Chyba při mazání tabulky: " . mysqli_error($db);
-// }
-
-
-// SQL příkaz pro vytvoření tabulky "devices"
-$sql = "CREATE TABLE IF NOT EXISTS devices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    device_name VARCHAR(255) NOT NULL,
-    device_type VARCHAR(255) NOT NULL,
-    device_description TEXT,
-    user_alias VARCHAR(255),
-    hodnota FLOAT, -- Teplota senzoru (příklad)
-    jednotka VARCHAR(255),
-    maintenance_interval INT -- Interval údržby v dnech (příklad)
-)";
-
-// Vytvoření tabulky
-if (mysqli_query($db, $sql)) {
-} else {
-    echo "Chyba při vytváření tabulky: " . mysqli_error($db);
-}
-
-
 
 // SQL dotaz pro získání dat ze tabulky "devices"
 $selectQuery = "SELECT * FROM devices";
@@ -127,7 +96,12 @@ if (isset($_POST['deleteDevice'])) {
 <body>
 
 <div class="user-bar">
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
 
@@ -141,6 +115,9 @@ if (isset($_POST['deleteDevice'])) {
         <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
 </div>
+<?php
+if($currentRole == 'admin' || $currentRole == 'registered'):
+?>
 <div class="centered-form">
 <h2>Vytvořit nové zařízení</h2>
     <?php
@@ -204,7 +181,7 @@ if (isset($_POST['deleteDevice'])) {
             // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
             unset($_SESSION['successMessage']);
         }
-    ?>
+?>
 
 
 <div class="centered-form">
@@ -258,7 +235,28 @@ if (isset($_POST['deleteDevice'])) {
     }
     ?>
 </div>
+<?php else:?>
+    <div class="centered-form">
+    <h2>Seznam zařízení</h2>
+    <table class="device-table">
+        <tr>
+            <th>Název zařízení</th>
+            <th>Typ zařízení</th>
+            <th>Popis zařízení</th>
+        </tr>
 
+        <?php 
+            while ($row = mysqli_fetch_assoc($result)) : 
+        ?>
+            <tr>
+                <td><?= $row['id'] ?></td>
+                <td><?= $row['device_name'] ?></td>
+                <td><?= $row['device_type'] ?></td>
+            </tr>
+        <?php endwhile; ?>
+    </table>
+</div>
+<?php endif;?>
 </body>
 </html>
 

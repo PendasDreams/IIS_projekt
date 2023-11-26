@@ -20,7 +20,7 @@ if (isset($_POST['logout'])) {
 
 // Připojení k databázi
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xnovos14', 'inbon8uj', 'xnovos14', 0, '/var/run/mysql/mysql.sock')) {
+if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
     die('Nelze se připojit k databázi: ' . mysqli_connect_error());
 }
 
@@ -62,7 +62,12 @@ if (isset($_POST['updateSystem'])) {
 <body>
 
 <div class="user-bar">
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
 
