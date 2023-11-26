@@ -104,7 +104,7 @@ if (isset($_POST['deleteDevice'])) {
     ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
-
+    <a href="manage_requests.php" class="system-button">Spravovat žádosti</a>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
