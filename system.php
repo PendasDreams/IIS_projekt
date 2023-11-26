@@ -291,7 +291,7 @@ if ($currentUsername != 'admin') {
 
 <!-- Owned Systems Table -->
 <h2>Vlastněné systémy</h2>
-<table>
+<table style="margin-bottom: 20px;">
     <tr>
         <th>Název systému</th>
         <th>Popis</th>
@@ -302,7 +302,6 @@ if ($currentUsername != 'admin') {
         <th></th>
         <th></th>
         <th> systém</th>
-        <th>Požádat o sdílení</th>
         <?php endif;?>
     </tr>
     <?php while ($row = mysqli_fetch_assoc($ownedResult)) : ?>
@@ -347,12 +346,6 @@ if ($currentUsername != 'admin') {
                 </form>
             </td>
             <td>
-                <form method="POST" action="">
-                    <input type="hidden" name="requestAccessSystemId" value="<?= $row['id'] ?>">
-                    <button class="request-access-button" type="submit" name="requestAccess">Poslat žádost</button>
-                </form>
-            </td>
-            <td>
                 <form method="POST" action="kpi.php">
                     <input type="hidden" name="KPI" value="<?= $row['admin_id'] ?>">
                     <input type="hidden" name="systemID" value="<?= $row['id'] ?>">
@@ -367,7 +360,7 @@ if ($currentUsername != 'admin') {
 <?php if ($currentUsername != 'admin'): ?>
     <!-- Shared Systems Table -->
     <h2>Sdílené systémy</h2>
-    <table>
+    <table style="margin-bottom: 80px;">
         <tr>
             <th>ID</th>
             <th>Název systému</th>
