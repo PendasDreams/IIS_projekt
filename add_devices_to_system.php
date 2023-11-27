@@ -1,6 +1,11 @@
 <?php
 session_start();
 
+// Připojení k databázi
+include_once("connect.php");
+$db = mysqli_init();
+pripojit();
+
 // Funkce pro odhlášení uživatele
 function logoutUser() {
     session_unset(); 
@@ -22,14 +27,14 @@ function addDeviceToSystem($systemId, $deviceId, $db) {
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
+$userIdQuery = "SELECT id FROM users WHERE username = '$currentUsername'";
+$userIdResult = mysqli_query($db, $userIdQuery);
+$userIdData = mysqli_fetch_assoc($userIdResult);
+$loggedInUserId = $userIdData['id']; // ID prihlaseneho uzivatele
+
 if (isset($_POST['logout'])) {
     logoutUser();
 }
-
-// Připojení k databázi
-include_once("connect.php");
-$db = mysqli_init();
-pripojit();
 
 $systemId = isset($_POST['addDeviceToSystem']) ? $_POST['addDeviceToSystem'] : null;
 
@@ -177,7 +182,9 @@ if (isset($_POST['remove_from_system'])) {
             <th>Hodnota</th>
             <th>Jednotka</th>
             <th>Interval údržby (dny)</th>
+            <?php if ($currentRole == 'admin' || $loggedInUserId == $systemAdminID) : ?>
             <th>Odebrat ze systému</th>
+            <?php endif; ?>
         </tr>
         <?php
         // Dotaz pro získání všech zařízení v systému
@@ -197,12 +204,13 @@ if (isset($_POST['remove_from_system'])) {
                 echo "<td>{$deviceData['maintenance_interval']}</td>";
                 echo "<td>";
                 
-                echo "<form method='POST' action=''>";
-                echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
-                
-                echo "<input type='hidden' name='system_id' value='{$systemId}'>";
-                echo "<button class='delete-button' type='submit' name='remove_from_system'>Odebrat ze systému</button>";
-                echo "</form>";
+                if ($currentRole == 'admin' || $loggedInUserId == $systemAdminID) {
+                    echo "<form method='POST' action=''>";
+                    echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
+                    echo "<input type='hidden' name='system_id' value='{$systemId}'>";
+                    echo "<button class='delete-button' type='submit' name='remove_from_system'>Odebrat ze systému</button>";
+                    echo "</form>";
+                }
                 echo "</td>";
                 echo "</tr>";
             }
@@ -224,7 +232,9 @@ if (isset($_POST['remove_from_system'])) {
             <th>Hodnota</th>
             <th>Jednotka</th>
             <th>Interval údržby (dny)</th>
+            <?php if ($currentRole == 'admin' || $loggedInUserId == $systemAdminID) : ?>
             <th>Akce</th>
+            <?php endif; ?>
         </tr>
         <?php
         // Dotaz pro získání všech zařízení
@@ -243,12 +253,14 @@ if (isset($_POST['remove_from_system'])) {
                 echo "<td>{$deviceData['jednotka']}</td>";
                 echo "<td>{$deviceData['maintenance_interval']}</td>";
                 echo "<td>";
-                
-                echo "<form method='POST' action=''>";
-                echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
-                echo "<input type='hidden' name='addDeviceToSystem' value='{$systemId}'>";
-                echo "<button class='edit-button' type='submit' name='add_to_system'>Přidat do systému</button>";
-                echo "</form>";
+
+                if ($currentRole == 'admin' || $loggedInUserId == $systemAdminID) {
+                    echo "<form method='POST' action=''>";
+                    echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
+                    echo "<input type='hidden' name='addDeviceToSystem' value='{$systemId}'>";
+                    echo "<button class='edit-button' type='submit' name='add_to_system'>Přidat do systému</button>";
+                    echo "</form>";
+                }
                 echo "</td>";
                 echo "</tr>";
             }

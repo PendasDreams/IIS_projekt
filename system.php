@@ -292,6 +292,7 @@ if ($currentRole != 'admin') {
     <h2>Vlastněné systémy</h2>
     <table style="margin-bottom: 20px;">
         <tr>
+            <th>ID</th>
             <th>Název systému</th>
             <th>Popis</th>
             <th>Admin</th>
@@ -313,6 +314,7 @@ if ($currentRole != 'admin') {
             $usersDropdownForSystem = mysqli_fetch_all($usersDropdownResultForSystem, MYSQLI_ASSOC);
             ?>
             <tr>
+                <td><?= $row['id'] ?></td>
                 <td><?= $row['name'] ?></td>
                 <td><?= $row['description'] ?></td>
                 <td><?= $row['username'] ?></td>
@@ -335,7 +337,7 @@ if ($currentRole != 'admin') {
                 <td>
                     <form method="POST" action="add_devices_to_system.php"> 
                         <input type="hidden" name="addDeviceToSystem" value="<?= $row['id'] ?>">
-                        <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Přidat zařízení</button>
+                        <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Správa zařízení</button>
                     </form>
                 </td>
                 <td>
@@ -370,6 +372,7 @@ if ($currentRole != 'admin') {
                 <th>Název systému</th>
                 <th>Popis</th>
                 <th>ID admina</th>
+                <th></th>
             </tr>
             <?php while ($row = mysqli_fetch_assoc($sharedResult)) : ?>
                 <tr>
@@ -377,6 +380,12 @@ if ($currentRole != 'admin') {
                 <td><?= $row['name'] ?></td>
                 <td><?= $row['description'] ?></td>
                 <td><?= $row['admin_id'] ?></td>
+                <td>
+                    <form method="POST" action="add_devices_to_system.php"> 
+                        <input type="hidden" name="addDeviceToSystem" value="<?= $row['id'] ?>">
+                        <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Sledovat zařízení</button>
+                    </form>
+                </td>
             </tr>
             <?php endwhile; ?>
         </table>
