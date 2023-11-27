@@ -14,6 +14,12 @@ $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 // Zpracování formuláře pro přidání uživatele
 // Pole povolených rolí
 $allowedRoles = array('admin', 'registered', 'broker', 'guest');
+$rolesQuery = "SELECT id, role FROM roles";
+$rolesResult = mysqli_query($db, $rolesQuery);
+$allRoles = [];
+while ($role = mysqli_fetch_assoc($rolesResult)) {
+    $allRoles[$role['id']] = $role['role'];
+}
 
 $errorMessage = ''; // Inicializace chybové zprávy prázdnou hodnotou
 
@@ -23,7 +29,7 @@ if (isset($_POST['addUser'])) {
     $newRole = mysqli_real_escape_string($db, $_POST['newRole']);
 
     // Kontrola, zda je zadaná role v seznamu povolených rolí
-    if (in_array($newRole, $allowedRoles)) {
+    if (array_key_exists($newRole, $allRoles)) {
         // Kontrola, zda již existuje uživatel se stejným jménem
         $checkDuplicateQuery = "SELECT * FROM users WHERE username = '$newUsername'";
         $duplicateResult = mysqli_query($db, $checkDuplicateQuery);
@@ -34,7 +40,7 @@ if (isset($_POST['addUser'])) {
 
         if (mysqli_num_rows($duplicateResult) == 0) {
             // Uživatel s tímto jménem neexistuje, můžeme ho přidat
-            $insertQuery = "INSERT INTO users (username, password, role) VALUES ('$newUsername', '$newPassword', '$newRole')";
+            $insertQuery = "INSERT INTO users (username, password, role) VALUES ('$newUsername', '$newPassword', $newRole)";
             $insertResult = mysqli_query($db, $insertQuery);
 
             if ($insertResult) {
@@ -87,7 +93,7 @@ if (isset($_POST['editUser'])) {
     $editedRole = mysqli_real_escape_string($db, $_POST['editedRole']);
 
     // Kontrola, zda je zadaná role v seznamu povolených rolí
-    if (in_array($editedRole, $allowedRoles)) {
+    if (array_key_exists($editedRole, $allRoles)) {
         // Kontrola, zda již existuje uživatel se stejným jménem
         $checkDuplicateQuery = "SELECT * FROM users WHERE username = '$editedUsername' AND id != '$editUserId'";
         $duplicateResult = mysqli_query($db, $checkDuplicateQuery);
@@ -98,7 +104,7 @@ if (isset($_POST['editUser'])) {
 
         if (mysqli_num_rows($duplicateResult) == 0) {
             // Uživatel s tímto jménem neexistuje nebo je to tentýž uživatel, můžeme provést úpravu
-            $editUserQuery = "UPDATE users SET username = '$editedUsername', password = '$editedPassword', role = '$editedRole' WHERE id = '$editUserId'";
+            $editUserQuery = "UPDATE users SET username = '$editedUsername', password = '$editedPassword', role = $editedRole WHERE id = '$editUserId'";
             if (mysqli_query($db, $editUserQuery)) {
                 echo "Uživatel s ID $editUserId byl úspěšně upraven.";
                 header('Location: editusers.php'); // Přesměrování na stránku se seznamem uživatelů
@@ -123,8 +129,9 @@ if (isset($_POST['logout'])) {
     exit();
 }
 
-
-
+$roleQuery = "SELECT id, role FROM roles";
+$roleResult = mysqli_query($db, $roleQuery);
+$roles = mysqli_fetch_all($roleResult, MYSQLI_ASSOC);
 
 ?>
 
@@ -249,7 +256,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 <div class="form-group">
                     <label for="editedRole">Role:</label>
-                    <input type="text" id="editedRole" name="editedRole" required value="<?= isset($user) ? $user['role'] : '' ?>">
+                    <select id="editedRole" name="editedRole" required>
+                        <?php foreach ($roles as $role): ?>
+                            <option value="<?= $role['id'] ?>" <?= (isset($user) && $user['role'] == $role['id']) ? 'selected' : '' ?>><?= htmlspecialchars(ucfirst($role['role'])) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <!-- Skryté pole pro editovaného uživatele ID -->
@@ -275,7 +286,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
                 <div class="form-group">
                     <label for="newRole">Role:</label>
-                    <input type="text" id="newRole" name="newRole" required>
+                    <select id="newRole" name="newRole" required>
+                        <?php foreach ($roles as $role): ?>
+                            <option value="<?= $role['id'] ?>"><?= htmlspecialchars(ucfirst($role['role'])) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <div class="form-group">
