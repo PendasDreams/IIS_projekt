@@ -41,47 +41,20 @@ $editSystemName = isset($_POST['editSystemName']) ? $_POST['editSystemName'] : n
 $editSystemDescription = isset($_POST['editSystemDescription']) ? $_POST['editSystemDescription'] : null;
 
 
-// Fetching users with access to the edited system
+// Fetch system details for editing
 if ($editSystemId) {
-    $accessQuery = "SELECT u.id, u.username FROM system_user_access sua
-                    JOIN users u ON sua.user_id = u.id
-                    WHERE sua.system_id = '$editSystemId' AND u.id != 0";
-    $accessResult = mysqli_query($db, $accessQuery);
-    $accessUsers = mysqli_fetch_all($accessResult, MYSQLI_ASSOC);
+    $systemQuery = "SELECT * FROM systems WHERE id = '$editSystemId'";
+    $systemResult = mysqli_query($db, $systemQuery);
+    $systemData = mysqli_fetch_assoc($systemResult);
+    $editSystemName = $systemData['name'];
+    $editSystemDescription = $systemData['description'];
+    $editSystemAdminID = $systemData['admin_id'];
 }
 
-// Handle the removal of a user
-// if (isset($_POST['removeUser'])) {
-//     $userIdToRemove = mysqli_real_escape_string($db, $_POST['userId']);
-//     $systemIdToRemoveFrom = mysqli_real_escape_string($db, $_POST['systemId']);
-
-//     if ($systemIdToRemoveFrom == $editSystemId) {
-//         $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$systemIdToRemoveFrom'";
-//         mysqli_query($db, $removeQuery);
-
-//         // Refresh the list of users with access
-//         $accessQuery = "SELECT u.id, u.username FROM system_user_access sua
-//                         JOIN users u ON sua.user_id = u.id
-//                         WHERE sua.system_id = '$editSystemId' AND u.id != 0";
-//         $accessResult = mysqli_query($db, $accessQuery);
-//         $accessUsers = mysqli_fetch_all($accessResult, MYSQLI_ASSOC);
-
-//         header('Location: edit_systems.php');
-//         exit(); 
-//     }
-// }
-
-// Handle the removal of a user
-// if (isset($_POST['removeUser'])) {
-//     $userIdToRemove = mysqli_real_escape_string($db, $_POST['userId']);
-//     $systemId = mysqli_real_escape_string($db, $_POST['systemId']);
-//     $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$systemId'";
-//     mysqli_query($db, $removeQuery);
-
-//     // Redirect to refresh the page
-//     header('Location: edit_systems.php');
-//     exit();
-// }
+// Fetch users for dropdown
+$usersDropdownQuery = "SELECT u.id, u.username FROM users u JOIN roles r ON u.role = r.id WHERE r.role NOT IN ('broker', 'guest', 'admin')";
+$usersDropdownResult = mysqli_query($db, $usersDropdownQuery);
+$usersDropdown = mysqli_fetch_all($usersDropdownResult, MYSQLI_ASSOC);
 
 // Poté můžete tyto informace použít v formuláři pro úpravu systému
 
@@ -106,7 +79,7 @@ if (isset($_POST['updateSystem'])) {
     }
 
     // Redirect to refresh the page
-    header('Location: edit_systems.php');
+    header('Location: system.php');
     exit();
 }
 
@@ -169,7 +142,11 @@ if (isset($_POST['updateSystem'])) {
 
     <div class="form-group">
         <label for="editSystemAdminID">ID admina systému:</label>
-        <input type="number" id="editSystemAdminID" name="editSystemAdminID" value="<?= $editSystemAdminID ?>" required>
+        <select id="editSystemAdminID" name="editSystemAdminID" required>
+            <?php foreach ($usersDropdown as $user): ?>
+                <option value="<?= $user['id'] ?>" <?= $user['id'] == $editSystemAdminID ? 'selected' : '' ?>><?= htmlspecialchars($user['username']) ?></option>
+            <?php endforeach; ?>
+        </select>
     </div>
     
     <?php if (isset($accessUsers) && $accessUsers): ?>
