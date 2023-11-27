@@ -2,10 +2,9 @@
 session_start();
 
 // Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 // Dotaz pro odstranění tabulky systems (pokud existuje)
 //$dropTableQuery = "DROP TABLE IF EXISTS systems";
@@ -50,32 +49,6 @@ if (isset($_POST['logout'])) {
 include_once("connect.php");
 $db = mysqli_init();
 pripojit();
-
-// Dotaz pro vytvoření tabulky "systems" (pokud neexistuje)
-$createSystemsTableQuery = "CREATE TABLE IF NOT EXISTS systems (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
-    admin_id INT NOT NULL,
-    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
-)";
-
-if (!mysqli_query($db, $createSystemsTableQuery)) {
-    die('Chyba při vytváření tabulky systems: ' . mysqli_error($db));
-}
-
-// Dotaz pro vytvoření tabulky "system_devices" (pokud neexistuje)
-$createSystemDevicesTableQuery = "CREATE TABLE IF NOT EXISTS system_devices (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    system_id INT NOT NULL,
-    device_id INT NOT NULL,
-    FOREIGN KEY (system_id) REFERENCES systems(id) ON DELETE CASCADE,
-    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
-)";
-
-if (!mysqli_query($db, $createSystemDevicesTableQuery)) {
-    die('Chyba při vytváření tabulky system_devices: ' . mysqli_error($db));
-}
 
 // Zpracování formuláře pro přidání systému
 if (isset($_POST['addSystem'])) {
@@ -191,7 +164,8 @@ if ($currentRole == 'admin') {
 
     $otherSystemsQuery = "SELECT * FROM systems WHERE id NOT IN (
         SELECT system_id FROM system_user_access WHERE user_id = '$userId'
-        ) AND s.admin_id != '$userId'";
+        ) AND admin_id != '$userId'";
+
 
     $otherSystemsResult = mysqli_query($db, $otherSystemsQuery);
 }
