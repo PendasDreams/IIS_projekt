@@ -37,29 +37,28 @@ $errorMessage = '';
 
 // Zpracování formuláře pro vytvoření zařízení
 if (isset($_POST['createDevice'])) {
-    $deviceName = $_POST['deviceName'];
-    $deviceType = $_POST['deviceType'];
-    $deviceDescription = $_POST['deviceDescription'];
-    $userAlias = $_POST['userAlias'];
+    $deviceName = mysqli_real_escape_string($db, $_POST['deviceName']);
+    $deviceType = mysqli_real_escape_string($db, $_POST['deviceType']);
+    $deviceDescription = mysqli_real_escape_string($db, $_POST['deviceDescription']);
+    $userAlias = mysqli_real_escape_string($db, $_POST['userAlias']);
     $hodnota = $_POST['hodnota']; 
-    $jednotka = $_POST['jednotka'];
+    $jednotka = mysqli_real_escape_string($db, $_POST['jednotka']);
     $maintenanceInterval = $_POST['maintenanceInterval']; 
+
 
     if (!is_numeric($hodnota) || !is_numeric($maintenanceInterval)) {
         $errorMessage = "Chyba: Pole 'Hodnota' a 'Interval údržby' musí být číselné hodnoty.";
     } else {
         
-        $insertStmt = $db->prepare("INSERT INTO devices (device_name, device_type, device_description, user_alias, hodnota, jednotka, maintenance_interval) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $insertStmt->bind_param("ssssids", $deviceName, $deviceType, $deviceDescription, $userAlias, $hodnota, $jednotka, $maintenanceInterval);
+        $insertQuery = "INSERT INTO devices (device_name, device_type, device_description, user_alias, hodnota, jednotka, maintenance_interval) 
+                        VALUES ('$deviceName', '$deviceType', '$deviceDescription', '$userAlias', '$hodnota', '$jednotka', '$maintenanceInterval')";
 
-        if ($insertStmt->execute()) {
+        if (mysqli_query($db, $insertQuery)) {
             $_SESSION['successMessage'] = "Zařízení bylo úspěšně vytvořeno.";
             header('Location: devices.php');
-            exit();
         } else {
-            $errorMessage = "Zařízení se nepodařilo vytvořit: " . $insertStmt->error;
+            $errorMessage = "Zařízení se nepodařilo vytvořit.";
         }
-        $insertStmt->close();
     }
 }
 
@@ -113,8 +112,11 @@ if (isset($_POST['deleteDevice'])) {
     <?php endif; ?>
 </div>
 <?php
-if($currentRole == 'admin' || $currentRole == 'registered'):
+if($currentRole == 'admin' || $currentRole == 'registered' || $currentRole == 'broker'):
 ?>
+
+<?php if($currentRole != 'broker') : ?>
+
 <div class="centered-form">
 <h2>Vytvořit nové zařízení</h2>
     <?php
@@ -171,6 +173,10 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
     </form>
 </div>
 
+<?php endif; ?>
+
+
+
 <?php
         if (isset($_SESSION['successMessage'])) {
             echo '<p style="color: green;">' . $_SESSION['successMessage'] . '</p>';
@@ -191,7 +197,9 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
             <th>Hodnota</th>
             <th>Jednotka</th>
             <th>Interval údržby (dny)</th>
+            <?php if($currentRole != 'broker') : ?>
             <th>Smazat</th> 
+            <?php endif; ?>
             <th>Upravit</th> 
         </tr>
 
@@ -205,12 +213,14 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
                 <td><?= $row['hodnota'] ?></td>
                 <td><?= $row['jednotka'] ?></td>
                 <td><?= $row['maintenance_interval'] ?></td>
+                <?php if($currentRole != 'broker') : ?>
                 <td>
                     <form method="POST" action="">
                         <input type="hidden" name="deleteDeviceId" value="<?= $row['id'] ?>">
                         <button class="delete-button" type="submit" name="deleteDevice">Smazat</button>
                     </form>
                 </td>
+                <?php endif; ?>
                 <td>
                     <form method="POST" action="edit_devices.php" onsubmit="scrollToEditForm()">
                         <input type="hidden" name="editUserId" value="<?= $row['id'] ?>">

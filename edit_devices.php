@@ -111,6 +111,9 @@ if (isset($_POST['deleteDevice'])) {
         <span class="user-info">Není žádný uživatel přihlášen.</span>
     <?php endif; ?>
 </div>
+
+<?php if($currentRole != 'broker') : ?>
+
 <div class="centered-form">
 <h2>Vytvořit nové zařízení</h2>
     <?php
@@ -167,6 +170,9 @@ if (isset($_POST['deleteDevice'])) {
 
     </form>
 </div>
+
+<?php endif; ?>
+
 
 <?php
         
