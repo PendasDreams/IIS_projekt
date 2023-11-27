@@ -32,7 +32,7 @@
 		popis činnosti v týmu
 	</dd>
 	<dt>URL aplikace</dt>
-	<dd><a href="http://www.stud.fit.vutbr.cz/~xautor01/IIS">http://www.stud.fit.vutbr.cz/~xautor01/IIS</a></dd>
+	<dd><a href="https://www.stud.fit.vutbr.cz/~xpolia05/index.html">https://www.stud.fit.vutbr.cz/~xpolia05/index.html</a></dd>
 	<dd>(pokud má aplikace více vstupních stránek, napište obdobně další URL)</dd>
 </dl>
 
@@ -45,26 +45,36 @@
 <tr><td>broker</td><td>broker</td><td>Broker</td></tr>
 </table>
 
-<p>(Diagram případů užití není nutné vkládat, pokud IS implementuje role a případy užití definované zadáním.)</p> 
-
 <h3>Video</h3>
 
 <p>Přiložte odkaz na komentované video demostrující použití informačního systému. Zaměřte se na případy užití definované zadáním (např. registrace uživatele, správa uživatelů a činnosti jednotlivých rolí). Video nahrajte například na VUT Google Drive, kde ho bude možné přímo spustit z odkazu.</p> 
 
 <h2>Implementace</h2>
-<p>Stručná dokumentace k implementaci, která popisuje, které části projektu (např. PHP skripty) implementují jednotlivé případy použití.</p>
-
+<p>index.html - vstupní stránka systému s přihlášovacím formulářem</p>
+<p>login.php - přihlašování</p>
+<p>connect.php - připojení k databázi</p>
+<p>welcome.php - uvodní stánka systému</p>
+<p>editusers.php - stránka správy uživatelů</p>
+<p>system.php - přehled systémů</p>
+<p>edit_systems.php - stránka pro ůpravu systému</p>
+<p>devices.php - přehled zařízení</p>
+<p>edit_devices.php - stránka pro úpravu zařízení</p>
+<p>add_devices_to_system.php - stánka pro správu zařízení v systému</p>
+<p>manage_requests - přehled požadavků pro přistup k systému</p>
+<p>kpi.php - předled KPI</p>
+<p>edit_kpi - stránka pro upravu KPI</p>
+<p>initdatabase.sql - vstupní nastavení databáze</p>
+<p>cleardatabase.sql - baliček na odstranění databáze</p>
+<p>welcome_style.css - kaskádové styly stránek</p>
 <h3>Databáze</h3>
 
-Zde vložte grafické schéma relační databáze (tabulek v databázi).
+<img src="diagram .png" alt="diagram databáze">
 
 <h2>Instalace</h2>
-
-Stručně popište: 
 <ul>
-<li>postup instalace na server,</li>
-<li>softwarové požadavky (verze PHP apod.),</li>
-<li>jak rozbalit, konfigurovat, inicializovat databázi, ...</li>
+<li>Instalace - rozbalit adresář</li>
+<li>softwarové požadavky - php 8.1, HTML5, </li>
+<li>Databáze - spustit skript initdatabase.php a změnit přihlašování udáje v connect.php</li>
 </ul>
 
 <h2>Známé problémy</h2>
