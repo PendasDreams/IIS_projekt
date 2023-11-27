@@ -4,4 +4,6 @@ DROP TABLE IF EXISTS systems;
 DROP TABLE IF EXISTS devices;
 DROP TABLE IF EXISTS system_devices;
 DROP TABLE IF EXISTS compare;
-DROP TABLE IF EXISTS kpi;
+DROP TABLE IF EXISTS KPI;
+DROP TABLE IF EXISTS system_access_requests;
+DROP TABLE IF EXISTS system_user_access;

@@ -35,10 +35,9 @@ if (isset($_POST['logout'])) {
 }
 
 // Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 // Dotaz pro vytvoření tabulky "systems" (pokud neexistuje)
 $createSystemsTableQuery = "CREATE TABLE IF NOT EXISTS systems (
@@ -65,36 +64,6 @@ $createSystemDevicesTableQuery = "CREATE TABLE IF NOT EXISTS system_devices (
 if (!mysqli_query($db, $createSystemDevicesTableQuery)) {
     die('Chyba při vytváření tabulky system_devices: ' . mysqli_error($db));
 }
-
-$createSystemAccessRequestsTableQuery = "CREATE TABLE IF NOT EXISTS system_access_requests (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    system_id INT NOT NULL,
-    requesting_user_id INT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending',
-    request_date DATETIME NOT NULL,
-    FOREIGN KEY (system_id) REFERENCES systems(id),
-    FOREIGN KEY (requesting_user_id) REFERENCES users(id)
-)";
-
-if (!mysqli_query($db, $createSystemAccessRequestsTableQuery)) {
-    die('Chyba při vytváření tabulky system_access_requests: ' . mysqli_error($db));
-}
-
-$createUserAccessTableQuery = "CREATE TABLE IF NOT EXISTS system_user_access (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    system_id INT NOT NULL,
-    user_id INT NOT NULL,
-    access_granted_date DATETIME NOT NULL,
-    FOREIGN KEY (system_id) REFERENCES systems(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
-)";
-
-if (!mysqli_query($db, $createUserAccessTableQuery)) {
-    die('Chyba při vytváření tabulky system_access_requests: ' . mysqli_error($db));
-}
-
-
-
 
 // Zpracování formuláře pro přidání systému
 if (isset($_POST['addSystem'])) {
@@ -187,9 +156,9 @@ if (isset($_POST['shareSystem'])) {
 $ownedSystemsQuery = "";
 $sharedSystemsQuery = "";
 
-if ($currentUsername == 'admin') {
+if ($currentRole == 'admin') {
     // Admin sees all systems
-    $ownedSystemsQuery = "SELECT * FROM systems";
+    $ownedSystemsQuery = "SELECT s.*, u.username FROM systems as s, users as u WHERE s.admin_id = u.id;";
     $sharedSystemsQuery = ""; // Admin doesn't need to see shared systems separately
 } else {
     // Non-admin users see their own systems and systems shared with them
@@ -198,20 +167,21 @@ if ($currentUsername == 'admin') {
     $userIdData = mysqli_fetch_assoc($userIdResult);
     $userId = $userIdData['id'];
 
-    $ownedSystemsQuery = "SELECT * FROM systems WHERE admin_id = '$userId'";
-    $sharedSystemsQuery = "SELECT s.* FROM system_user_access sua 
-                           JOIN systems s ON sua.system_id = s.id 
-                           WHERE sua.user_id = '$userId'";
+    $ownedSystemsQuery = "SELECT s.*, u.username FROM systems as s, users as u WHERE s.admin_id = u.id AND admin_id = '$userId'";
+    $sharedSystemsQuery = "SELECT s.*, u.username FROM system_user_access sua 
+        JOIN systems s ON sua.system_id = s.id 
+        JOIN users u ON u.id = s.admin_id
+        WHERE sua.user_id = '$userId'";
 
-    $otherSystemsQuery = "SELECT * FROM systems WHERE id NOT IN (
+    $otherSystemsQuery = "SELECT s.*, u.username FROM systems as s, users as u WHERE s.admin_id = u.id AND s.id NOT IN (
         SELECT system_id FROM system_user_access WHERE user_id = '$userId'
-        ) AND admin_id != '$userId'";
+        ) AND s.admin_id != '$userId'";
 
     $otherSystemsResult = mysqli_query($db, $otherSystemsQuery);
 }
 
 // Dotaz pro získání všech systémů
-$query = "SELECT s.id, s.name, s.description, s.admin_id, u.username
+$query = "SELECT s.*, u.username
     FROM systems as s, users as u WHERE s.admin_id = u.id;";
 
 $result = mysqli_query($db, $query);
@@ -227,7 +197,7 @@ $users = mysqli_fetch_all($usersResult, MYSQLI_ASSOC);
 // Fetch and display owned systems
 $ownedResult = mysqli_query($db, $ownedSystemsQuery);
 
-if ($currentUsername != 'admin') {
+if ($currentRole != 'admin') {
     // Fetch and display shared systems
     $sharedResult = mysqli_query($db, $sharedSystemsQuery);
 }
@@ -252,7 +222,11 @@ if ($currentUsername != 'admin') {
     ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
-    <a href="manage_requests.php" class="system-button">Spravovat žádosti</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="manage_requests.php" class="system-button">Spravovat žádosti</a>';
+    }
+    ?>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
@@ -301,7 +275,7 @@ if ($currentUsername != 'admin') {
         <th></th>
         <th></th>
         <th></th>
-        <th> systém</th>
+        <th></th>
         <?php endif;?>
     </tr>
     <?php while ($row = mysqli_fetch_assoc($ownedResult)) : ?>
@@ -357,44 +331,40 @@ if ($currentUsername != 'admin') {
     <?php endwhile; ?>
 </table>
 
-<?php if ($currentUsername != 'admin'): ?>
+<?php if ($currentRole != 'admin'): ?>
     <!-- Shared Systems Table -->
     <h2>Sdílené systémy</h2>
     <table style="margin-bottom: 80px;">
         <tr>
-            <th>ID</th>
             <th>Název systému</th>
             <th>Popis</th>
-            <th>ID admina</th>
+            <th>Admin</th>
         </tr>
         <?php while ($row = mysqli_fetch_assoc($sharedResult)) : ?>
             <tr>
-            <td><?= $row['id'] ?></td>
             <td><?= $row['name'] ?></td>
             <td><?= $row['description'] ?></td>
-            <td><?= $row['admin_id'] ?></td>
+            <td><?= $row['username'] ?></td>
         </tr>
         <?php endwhile; ?>
     </table>
 <?php endif; ?>
 
-<?php if ($currentUsername != 'admin'): ?>
+<?php if ($currentRole != 'admin'): ?>
     <!-- Other Systems Table -->
     <h2>Ostatní systémy</h2>
     <table>
         <tr>
-            <th>ID</th>
             <th>Název systému</th>
             <th>Popis</th>
-            <th>ID admina</th>
+            <th>Admin</th>
             <th>Požádat o sdílení</th>
         </tr>
         <?php while ($row = mysqli_fetch_assoc($otherSystemsResult)) : ?>
             <tr>
-                <td><?= $row['id'] ?></td>
                 <td><?= $row['name'] ?></td>
                 <td><?= $row['description'] ?></td>
-                <td><?= $row['admin_id'] ?></td>
+                <td><?= $row['username'] ?></td>
                 <td>
                     <form method="POST" action="">
                         <input type="hidden" name="requestAccessSystemId" value="<?= $row['id'] ?>">
@@ -405,8 +375,8 @@ if ($currentUsername != 'admin') {
         <?php endwhile; ?>
     </table>
 <?php endif; ?>
-
 </div>
+
 </body>
 </html>
 

@@ -100,3 +100,22 @@ INSERT INTO KPI (val, device_id, system_id, typ) VALUES
     (70, 3, 1, 4),
     (60, 2, 2, 3),
     (900, 4, 2, 6);
+
+CREATE TABLE IF NOT EXISTS system_access_requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    system_id INT NOT NULL,
+    requesting_user_id INT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    request_date DATETIME NOT NULL,
+    FOREIGN KEY (system_id) REFERENCES systems(id),
+    FOREIGN KEY (requesting_user_id) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS system_user_access (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    system_id INT NOT NULL,
+    user_id INT NOT NULL,
+    access_granted_date DATETIME NOT NULL,
+    FOREIGN KEY (system_id) REFERENCES systems(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);

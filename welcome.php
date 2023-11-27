@@ -10,10 +10,9 @@ function logoutUser() {
 }
 
 // Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 // Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
@@ -41,7 +40,11 @@ if (isset($_POST['logout'])) {
     ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
-    <a href="manage_requests.php" class="system-button">Spravovat žádosti</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="manage_requests.php" class="system-button">Spravovat žádosti</a>';
+    }
+    ?>
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
