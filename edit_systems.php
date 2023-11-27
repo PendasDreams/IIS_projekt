@@ -44,6 +44,14 @@ if ($editSystemId) {
     $editSystemName = $systemData['name'];
     $editSystemDescription = $systemData['description'];
     $editSystemAdminID = $systemData['admin_id'];
+
+    
+    $accessQuery = "SELECT u.id, u.username 
+                    FROM system_user_access sua
+                    JOIN users u ON sua.user_id = u.id
+                    WHERE sua.system_id = '$editSystemId'";
+    $accessResult = mysqli_query($db, $accessQuery);
+    $accessUsers = mysqli_fetch_all($accessResult, MYSQLI_ASSOC);
 }
 
 $usersDropdownQuery = "SELECT u.id, u.username FROM users u JOIN roles r ON u.role = r.id WHERE r.role NOT IN ('broker', 'guest', 'admin')";
@@ -142,24 +150,24 @@ if (isset($_POST['updateSystem'])) {
         </select>
     </div>
     
-    <?php if (isset($accessUsers) && $accessUsers): ?>
-    <div class="system-users">
-        <h3 style="text-align:center;">Uživatelé s přístupem k systému: <?= htmlspecialchars($editSystemName) ?></h3>  
-        <table>
-            <tr>
-                <th>Uživatel</th>
-                <th>Odstránit</th>
-            </tr>
-            <?php foreach ($accessUsers as $user): ?>
+    <?php if (!empty($accessUsers)): ?>
+        <div class="system-users">
+            <h3 style="text-align:center;">Uživatelé s přístupem k systému: <?= htmlspecialchars($editSystemName) ?></h3>  
+            <table>
                 <tr>
-                    <td style="text-align: center;"><?= htmlspecialchars($user['username']) ?></td>
-                    <td style="text-align: center;">
-                        <input type="checkbox" name="usersToRemove[]" value="<?= $user['id'] ?>">
-                    </td>
+                    <th>Uživatel</th>
+                    <th>Odstránit</th>
                 </tr>
-            <?php endforeach; ?>
-        </table>
-    </div>
+                <?php foreach ($accessUsers as $user): ?>
+                    <tr>
+                        <td style="text-align: center;"><?= htmlspecialchars($user['username']) ?></td>
+                        <td style="text-align: center;">
+                            <input type="checkbox" name="usersToRemove[]" value="<?= $user['id'] ?>">
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
     <?php endif; ?>
 
     <div class="form-group">
