@@ -155,8 +155,8 @@ if (isset($_POST['updateSystem'])) {
             <h3 style="text-align:center;">Uživatelé s přístupem k systému: <?= htmlspecialchars($editSystemName) ?></h3>  
             <table>
                 <tr>
-                    <th>Uživatel</th>
-                    <th>Odstránit</th>
+                    <th style="text-align: center;">Uživatel</th>
+                    <th style="text-align: center;">Odstránit</th>
                 </tr>
                 <?php foreach ($accessUsers as $user): ?>
                     <tr>
@@ -170,7 +170,7 @@ if (isset($_POST['updateSystem'])) {
         </div>
     <?php endif; ?>
 
-    <div class="form-group">
+    <div class="form-group" style="margin-top: 20px;">
         <button class="btn-submit" type="submit" name="updateSystem">Uložit změny</button>
     </div>
 </form>

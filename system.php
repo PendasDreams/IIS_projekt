@@ -290,6 +290,7 @@ if ($currentRole != 'admin') {
 
 <?php if($currentRole != 'guest'): ?>
     <h2>Vlastněné systémy</h2>
+    <?php if (mysqli_num_rows($ownedResult) > 0): ?>
     <table style="margin-bottom: 20px;">
         <tr>
             <th>ID</th>
@@ -348,7 +349,7 @@ if ($currentRole != 'admin') {
                             <option value="<?= $user['id'] ?>"><?= htmlspecialchars($user['username']) ?></option>
                         <?php endforeach; ?>
                         </select>
-                        <button class="share-button" type="submit" name="shareSystem">Sdílet</button>
+                        <button class="share-button" type="submit" name="shareSystem">Sdílet systém</button>
                     </form>
                 </td>
                 <td>
@@ -361,11 +362,15 @@ if ($currentRole != 'admin') {
             </tr>
         <?php endwhile; ?>
     </table>
+    <?php else: ?>
+        <p>Žádné vlastněné systémy na zobrazení.</p>
+    <?php endif; ?>
     
 
     <?php if ($currentUsername != 'admin'): ?>
        
         <h2>Sdílené systémy</h2>
+        <?php if (mysqli_num_rows($sharedResult) > 0): ?>
         <table style="margin-bottom: 80px;">
             <tr>
                 <th>ID</th>
@@ -389,11 +394,15 @@ if ($currentRole != 'admin') {
             </tr>
             <?php endwhile; ?>
         </table>
+        <?php else: ?>
+            <p>Žádné sdílené systémy na zobrazení.</p>
+        <?php endif; ?>
     <?php endif; ?>
 
     <?php if ($currentUsername != 'admin'): ?>
         
         <h2>Ostatní systémy</h2>
+        <?php if (mysqli_num_rows($otherSystemsResult) > 0): ?>
         <table>
             <tr>
                 <th>ID</th>
@@ -417,10 +426,14 @@ if ($currentRole != 'admin') {
                 </tr>
             <?php endwhile; ?>
         </table>
+        <?php else: ?>
+            <p>Žádné ostatní systémy k zobrazení.</p>
+        <?php endif; ?>
     <?php endif; ?>
 <?php else: ?>
 
     <h2>Seznam systémů</h2>
+    <?php if (mysqli_num_rows($result) > 0): ?>
         <table>
             <tr>
                 <th>Název systému</th>
@@ -435,6 +448,9 @@ if ($currentRole != 'admin') {
                 </tr>
             <?php endwhile; ?>
         </table>
+    <?php else: ?>
+        <p>Žádné systémy k zobrazení.</p>
+    <?php endif; ?>
 <?php endif; ?>
 </div>
 
