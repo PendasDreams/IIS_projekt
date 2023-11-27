@@ -59,33 +59,29 @@ $usersDropdownResult = mysqli_query($db, $usersDropdownQuery);
 $usersDropdown = mysqli_fetch_all($usersDropdownResult, MYSQLI_ASSOC);
 
 
-
 if (isset($_POST['updateSystem'])) {
-    $editSystemId = mysqli_real_escape_string($db, $_POST['editSystemId']);
-    $editSystemName = mysqli_real_escape_string($db, $_POST['editSystemName']);
-    $editSystemDescription = mysqli_real_escape_string($db, $_POST['editSystemDescription']);
-    $editSystemAdminID = mysqli_real_escape_string($db, $_POST['editSystemAdminID']);
+    $editSystemId = $_POST['editSystemId'];
+    $editSystemName = $_POST['editSystemName'];
+    $editSystemDescription = $_POST['editSystemDescription'];
+    $editSystemAdminID = $_POST['editSystemAdminID'];
 
-    
-    $updateQuery = "UPDATE systems SET name = '$editSystemName', description = '$editSystemDescription', admin_id = '$editSystemAdminID' WHERE id = '$editSystemId'";
-    mysqli_query($db, $updateQuery);
+    $updateStmt = $db->prepare("UPDATE systems SET name = ?, description = ?, admin_id = ? WHERE id = ?");
+    $updateStmt->bind_param("ssii", $editSystemName, $editSystemDescription, $editSystemAdminID, $editSystemId);
+    $updateSuccess = $updateStmt->execute();
+    $updateStmt->close();
 
-   
     if (isset($_POST['usersToRemove'])) {
+        $removeStmt = $db->prepare("DELETE FROM system_user_access WHERE user_id = ? AND system_id = ?");
         foreach ($_POST['usersToRemove'] as $userIdToRemove) {
-            $userIdToRemove = mysqli_real_escape_string($db, $userIdToRemove);
-            $removeQuery = "DELETE FROM system_user_access WHERE user_id = '$userIdToRemove' AND system_id = '$editSystemId'";
-            mysqli_query($db, $removeQuery);
+            $removeStmt->bind_param("ii", $userIdToRemove, $editSystemId);
+            $removeStmt->execute();
         }
+        $removeStmt->close();
     }
 
-    
     header('Location: system.php');
     exit();
 }
-
-
-
 
 ?>
 

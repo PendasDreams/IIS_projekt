@@ -49,31 +49,24 @@ pripojit();
 
 // Zpracování formuláře pro přidání systému
 if (isset($_POST['addSystem'])) {
-    $newSystemName = mysqli_real_escape_string($db, $_POST['newSystemName']);
-    $newSystemDescription = mysqli_real_escape_string($db, $_POST['newSystemDescription']);
+    $newSystemName = $_POST['newSystemName'];
+    $newSystemDescription = $_POST['newSystemDescription'];
     
-   
-    $newSystemAdminID = $currentRole == 'admin' ? mysqli_real_escape_string($db, $_POST['newSystemAdminID']) : $loggedInUserId;
+    $newSystemAdminID = $currentRole == 'admin' ? $_POST['newSystemAdminID'] : $loggedInUserId;
 
     if (!systemExists($db, $newSystemName)) {
-        $insertQuery = "INSERT INTO systems (name, description, admin_id) VALUES ('$newSystemName', '$newSystemDescription', '$newSystemAdminID')";
+        $insertQuery = $db->prepare("INSERT INTO systems (name, description, admin_id) VALUES (?, ?, ?)");
+        $insertQuery->bind_param("ssi", $newSystemName, $newSystemDescription, $newSystemAdminID);
 
-        if (mysqli_query($db, $insertQuery)) {
+        if ($insertQuery->execute()) {
             echo "Systém '$newSystemName' byl úspěšně přidán.";
         } else {
-            echo 'Chyba při přidávání systému: ' . mysqli_error($db);
+            echo 'Chyba při přidávání systému: ' . $insertQuery->error;
         }
     } else {
         echo "Systém s názvem '$newSystemName' již existuje.";
     }
 }
-
-
-// function deleteSystem($db, $systemId) {
-//     $systemId = mysqli_real_escape_string($db, $systemId);
-//     $deleteQuery = "DELETE FROM systems WHERE id = '$systemId'";
-//     return mysqli_query($db, $deleteQuery);
-// }
 
 function deleteSystem($db, $systemId) {
     mysqli_begin_transaction($db);

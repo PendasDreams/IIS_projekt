@@ -37,28 +37,29 @@ $errorMessage = '';
 
 // Zpracování formuláře pro vytvoření zařízení
 if (isset($_POST['createDevice'])) {
-    $deviceName = mysqli_real_escape_string($db, $_POST['deviceName']);
-    $deviceType = mysqli_real_escape_string($db, $_POST['deviceType']);
-    $deviceDescription = mysqli_real_escape_string($db, $_POST['deviceDescription']);
-    $userAlias = mysqli_real_escape_string($db, $_POST['userAlias']);
+    $deviceName = $_POST['deviceName'];
+    $deviceType = $_POST['deviceType'];
+    $deviceDescription = $_POST['deviceDescription'];
+    $userAlias = $_POST['userAlias'];
     $hodnota = $_POST['hodnota']; 
-    $jednotka = mysqli_real_escape_string($db, $_POST['jednotka']);
+    $jednotka = $_POST['jednotka'];
     $maintenanceInterval = $_POST['maintenanceInterval']; 
-
 
     if (!is_numeric($hodnota) || !is_numeric($maintenanceInterval)) {
         $errorMessage = "Chyba: Pole 'Hodnota' a 'Interval údržby' musí být číselné hodnoty.";
     } else {
         
-        $insertQuery = "INSERT INTO devices (device_name, device_type, device_description, user_alias, hodnota, jednotka, maintenance_interval) 
-                        VALUES ('$deviceName', '$deviceType', '$deviceDescription', '$userAlias', '$hodnota', '$jednotka', '$maintenanceInterval')";
+        $insertStmt = $db->prepare("INSERT INTO devices (device_name, device_type, device_description, user_alias, hodnota, jednotka, maintenance_interval) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $insertStmt->bind_param("ssssids", $deviceName, $deviceType, $deviceDescription, $userAlias, $hodnota, $jednotka, $maintenanceInterval);
 
-        if (mysqli_query($db, $insertQuery)) {
+        if ($insertStmt->execute()) {
             $_SESSION['successMessage'] = "Zařízení bylo úspěšně vytvořeno.";
             header('Location: devices.php');
+            exit();
         } else {
-            $errorMessage = "Zařízení se nepodařilo vytvořit.";
+            $errorMessage = "Zařízení se nepodařilo vytvořit: " . $insertStmt->error;
         }
+        $insertStmt->close();
     }
 }
 
