@@ -3,10 +3,10 @@ session_start();
 
 // Funkce pro odhlášení uživatele
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset(); 
+    session_destroy(); 
+    header('Location: index.html'); 
+    exit(); 
 }
 
 // Funkce pro přidání zařízení do systému
@@ -19,11 +19,9 @@ function addDeviceToSystem($systemId, $deviceId, $db) {
     }
 }
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
 if (isset($_POST['logout'])) {
     logoutUser();
 }
@@ -38,7 +36,7 @@ $systemId = isset($_POST['addDeviceToSystem']) ? $_POST['addDeviceToSystem'] : n
 
 
 if ($systemId) {
-    // Získání informací o systému z databáze
+    
     $query = "SELECT * FROM systems WHERE id = $systemId";
     $result = mysqli_query($db, $query);
 
@@ -48,12 +46,10 @@ if ($systemId) {
         $systemDescription = $systemData['description'];
         $systemAdminID = $systemData['admin_id'];
     } else {
-        // Systém s daným ID nebyl nalezen
-        // Můžete zde provést nějaké opatření, např. přesměrovat zpět na předchozí stránku s chybou
         echo "Systém nebyl nalezen.";
     }
 } else {
-    // ID systému nebylo odesláno, můžete zde provést nějaké opatření, např. přesměrovat zpět na předchozí stránku s chybou
+    
     echo "Chybějící ID systému.";
 } 
 
@@ -63,14 +59,14 @@ if (isset($_POST['add_to_system'])) {
     
     if ($deviceId) {
         if (addDeviceToSystem($systemId, $deviceId, $db)) {
-            // Úspěšné přidání zařízení do systému, můžete provést nějaké akce nebo výstup
+            
             echo "Zařízení bylo úspěšně přidáno do systému.";
         } else {
-            // Chyba při přidávání zařízení do systému, můžete provést nějaké akce nebo výstup
+            
             echo "Chyba při přidávání zařízení do systému.";
         }
     } else {
-        // ID zařízení nebylo odesláno, můžete provést nějaké opatření, např. přesměrovat zpět na předchozí stránku s chybou
+        
         echo "Chybějící ID zařízení.";
     }
 }
@@ -83,10 +79,10 @@ if (isset($_POST['remove_from_system'])) {
     if ($deviceId && $systemId) {
         $queryRemove = "DELETE FROM system_devices WHERE system_id = $systemId AND device_id = $deviceId";
         if (mysqli_query($db, $queryRemove)) {
-            // Úspěšné odebrání zařízení ze systému
+            
             echo "Zařízení bylo úspěšně odebráno ze systému.";
             
-            // Aktualizovat informace o systému
+            
             $query = "SELECT * FROM systems WHERE id = $systemId";
             $result = mysqli_query($db, $query);
             
@@ -97,11 +93,11 @@ if (isset($_POST['remove_from_system'])) {
                 $systemAdminID = $systemData['admin_id'];
             }
         } else {
-            // Chyba při odebírání zařízení ze systému
+            
             echo "Chyba při odebírání zařízení ze systému: " . mysqli_error($db);
         }
     } else {
-        // ID zařízení nebo system_id nebyly odeslány
+        
         echo "Chybějící ID zařízení nebo system_id.";
     }
 }
@@ -153,7 +149,7 @@ if (isset($_POST['remove_from_system'])) {
             <th>ID admina systému</th>
         </tr>
         <?php
-        // Zkontrolovat, zda jsou proměnné inicializovány
+       
         if (isset($systemId, $systemName, $systemDescription, $systemAdminID)) {
             echo "<tr>";
             echo "<td>{$systemId}</td>";
@@ -162,7 +158,7 @@ if (isset($_POST['remove_from_system'])) {
             echo "<td>{$systemAdminID}</td>";
             echo "</tr>";
         } else {
-            // Proměnné nejsou inicializovány, můžete provést nějakou obslužnou akci nebo výstup
+            
             echo "Informace o systému nejsou k dispozici.";
         }
         ?>
@@ -200,10 +196,10 @@ if (isset($_POST['remove_from_system'])) {
                 echo "<td>{$deviceData['jednotka']}</td>";
                 echo "<td>{$deviceData['maintenance_interval']}</td>";
                 echo "<td>";
-                // Přidání tlačítka pro odebrání zařízení ze systému
+                
                 echo "<form method='POST' action=''>";
                 echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
-                // Přidání skrytého vstupního prvku pro system_id
+                
                 echo "<input type='hidden' name='system_id' value='{$systemId}'>";
                 echo "<button class='delete-button' type='submit' name='remove_from_system'>Odebrat ze systému</button>";
                 echo "</form>";
@@ -247,7 +243,7 @@ if (isset($_POST['remove_from_system'])) {
                 echo "<td>{$deviceData['jednotka']}</td>";
                 echo "<td>{$deviceData['maintenance_interval']}</td>";
                 echo "<td>";
-                // Přidání tlačítka pro přidání zařízení do systému
+                
                 echo "<form method='POST' action=''>";
                 echo "<input type='hidden' name='device_id' value='{$deviceData['id']}'>";
                 echo "<input type='hidden' name='addDeviceToSystem' value='{$systemId}'>";

@@ -7,11 +7,9 @@ include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-// Zpracování formuláře pro přidání uživatele
 // Pole povolených rolí
 $allowedRoles = array('admin', 'registered', 'broker', 'guest');
 $rolesQuery = "SELECT id, role FROM roles";
@@ -21,7 +19,7 @@ while ($role = mysqli_fetch_assoc($rolesResult)) {
     $allRoles[$role['id']] = $role['role'];
 }
 
-$errorMessage = ''; // Inicializace chybové zprávy prázdnou hodnotou
+$errorMessage = ''; 
 
 if (isset($_POST['addUser'])) {
     $newUsername = mysqli_real_escape_string($db, $_POST['newUsername']);
@@ -39,13 +37,13 @@ if (isset($_POST['addUser'])) {
         }
 
         if (mysqli_num_rows($duplicateResult) == 0) {
-            // Uživatel s tímto jménem neexistuje, můžeme ho přidat
+
             $insertQuery = "INSERT INTO users (username, password, role) VALUES ('$newUsername', '$newPassword', $newRole)";
             $insertResult = mysqli_query($db, $insertQuery);
 
             if ($insertResult) {
                 echo "Uživatel '$newUsername' byl úspěšně přidán.";
-                header('Location: editusers.php'); // Přesměrování na stránku se seznamem uživatelů
+                header('Location: editusers.php'); 
             } else {
                 $errorMessage = 'Chyba při přidávání uživatele: ' . mysqli_error($db);
             }
@@ -60,12 +58,11 @@ if (isset($_POST['addUser'])) {
 if (isset($_POST['deleteUser'])) {
     $deleteUserId = mysqli_real_escape_string($db, $_POST['deleteUserId']);
 
-    // SQL dotaz pro smazání uživatele z databáze
     $deleteUserQuery = "DELETE FROM users WHERE id = '$deleteUserId'";
 
     if (mysqli_query($db, $deleteUserQuery)) {
         echo "Uživatel s ID $deleteUserId byl úspěšně smazán.";
-        header('Location: editusers.php'); // Přesměrování na stránku se seznamem uživatelů
+        header('Location: editusers.php'); 
 
     } else {
         echo 'Chyba při mazání uživatele: ' . mysqli_error($db);
@@ -74,10 +71,9 @@ if (isset($_POST['deleteUser'])) {
 
 
 if (isset($_POST['loadEditForm'])) {
-    // Pokud bylo stisknuto tlačítko "Upravit"
+    
     $editUserId = mysqli_real_escape_string($db, $_POST['editUserId']);
 
-    // Získání údajů o uživateli pro úpravu
     $query = "SELECT * FROM users WHERE id = '$editUserId'";
     $userResult = mysqli_query($db, $query);
 
@@ -92,7 +88,6 @@ if (isset($_POST['editUser'])) {
     $editedPassword = mysqli_real_escape_string($db, $_POST['editedPassword']);
     $editedRole = mysqli_real_escape_string($db, $_POST['editedRole']);
 
-    // Kontrola, zda je zadaná role v seznamu povolených rolí
     if (array_key_exists($editedRole, $allRoles)) {
         // Kontrola, zda již existuje uživatel se stejným jménem
         $checkDuplicateQuery = "SELECT * FROM users WHERE username = '$editedUsername' AND id != '$editUserId'";
@@ -103,11 +98,11 @@ if (isset($_POST['editUser'])) {
         }
 
         if (mysqli_num_rows($duplicateResult) == 0) {
-            // Uživatel s tímto jménem neexistuje nebo je to tentýž uživatel, můžeme provést úpravu
+            
             $editUserQuery = "UPDATE users SET username = '$editedUsername', password = '$editedPassword', role = $editedRole WHERE id = '$editUserId'";
             if (mysqli_query($db, $editUserQuery)) {
                 echo "Uživatel s ID $editUserId byl úspěšně upraven.";
-                header('Location: editusers.php'); // Přesměrování na stránku se seznamem uživatelů
+                header('Location: editusers.php'); 
             } else {
                 $errorMessage = 'Chyba při úpravě uživatele: ' . mysqli_error($db);
             }
@@ -120,11 +115,11 @@ if (isset($_POST['editUser'])) {
 }
 
 if (isset($_POST['logout'])) {
-    // Zrušení všech session proměnných
+    
     session_unset();
-    // Zničení session
+    
     session_destroy();
-    // Přesměrování na index.html
+    
     header('Location: index.html');
     exit();
 }
@@ -137,17 +132,17 @@ $roles = mysqli_fetch_all($roleResult, MYSQLI_ASSOC);
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Zkontrolujeme, zda byl odeslán formulář
+    
     var urlParams = new URLSearchParams(window.location.search);
     var submitted = urlParams.get("submitted");
     
     if (submitted) {
-        // Počkejme nějaký čas, než se stránka znovunačte (např. 100 ms)
+        
         setTimeout(function() {
-            // Najdeme prvek formuláře úpravy uživatele
+           
             var editForm = document.querySelector(".user-form");
             
-            // Scrollujeme dolů na tento prvek
+            
             if (editForm) {
                 editForm.scrollIntoView({ behavior: "smooth", block: "start" });
             }
@@ -160,12 +155,12 @@ document.addEventListener("DOMContentLoaded", function() {
 <html>
 <head>
     <title>Přihlášení</title>
-    <link rel="stylesheet" type="text/css" href="welcome_style.css"> <!-- Import stylů z externího souboru -->
-    <link rel="stylesheet" type="text/css" href="styles.css"> <!-- Import stylů z externího souboru -->
+    <link rel="stylesheet" type="text/css" href="welcome_style.css">
+    <link rel="stylesheet" type="text/css" href="styles.css"> 
 </head>
 <body>
 <div class="user-bar">
-    <!-- Tlačítko "Systémy" na levé straně -->
+    
     <a href="welcome.php" class="system-button">Menu</a>
     <?php
     if ($currentRole != 'guest'){
@@ -183,8 +178,8 @@ document.addEventListener("DOMContentLoaded", function() {
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>
         <span class="user-info">Role:</span> <strong><?= $currentRole ?></strong>
 
-        <!-- Tlačítko pro odhlášení -->
-        <form method="POST" action="index.html"> <!-- Vytvořte stránku logout.php pro odhlášení uživatele -->
+        
+        <form method="POST" action="index.html"> 
             <button type="submit" name="logout" class="logout-button">Odhlásit se</button>
         </form>
         
@@ -194,10 +189,10 @@ document.addEventListener("DOMContentLoaded", function() {
 </div>
 
 <?php if ($currentRole === 'admin') : ?>
-    <!-- Zobrazit nadpisy pouze pro uživatele s rolí "admin" -->
+   
     <div class="centered-buttons">
         <?php
-        // Dotaz pro výpis všech uživatelů
+        
         $query = "SELECT u.id, u.username, u.password, r.role FROM users as u, roles as r WHERE u.role = r.id";
         $result = mysqli_query($db, $query);
 
@@ -210,7 +205,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <th>Uživatelské jméno</th>
                     <th>Role</th>
                     <th>Smazat</th>
-                    <th>Upravit</th> <!-- Přidán sloupec pro tlačítko "Upravit" -->
+                    <th>Upravit</th>
                 </tr>
                 <?php while ($row = mysqli_fetch_assoc($result)) : ?>
                     <tr>
@@ -241,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </div>
             <?php endif; ?>
 
-            <!-- Formulář pro úpravu uživatele -->
+            
             <h2>Úprava uživatele</h2>
             <form class="user-form" method="POST" action="">
                 <div class="form-group">
@@ -263,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     </select>
                 </div>
 
-                <!-- Skryté pole pro editovaného uživatele ID -->
+                
                 <input type="hidden" name="editUserId" value="<?= isset($user) ? $user['id'] : '' ?>">
 
                 <div class="form-group">

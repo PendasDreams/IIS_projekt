@@ -3,17 +3,17 @@
 
     // Funkce pro odhlášení uživatele
     function logoutUser() {
-        session_unset(); // Vyprázdnění všech session proměnných
-        session_destroy(); // Zničení session
-        header('Location: index.html'); // Přesměrování na index.html
-        exit(); // Zastavení běhu skriptu
+        session_unset(); 
+        session_destroy(); 
+        header('Location: index.html'); 
+        exit(); 
     }
 
-    // Dotaz pro výpis aktuálně přihlášeného uživatele
+    
     $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
     $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-    // Odhlášení uživatele po kliknutí na tlačítko odhlášení
+    
     if (isset($_POST['logout'])) {
         logoutUser();
     }
@@ -24,14 +24,12 @@
     pripojit();
 
     if ($currentRole == 'admin') {
-        // Admin: Show all pending requests
         $query = "SELECT sar.id, sar.system_id, sar.requesting_user_id, sar.status, sar.request_date, u.username, s.name AS system_name
                   FROM system_access_requests sar
                   JOIN users u ON sar.requesting_user_id = u.id
                   JOIN systems s ON sar.system_id = s.id
                   WHERE sar.status = 'pending'";
     } else {
-        // Regular user: Show requests only for systems where the user is the admin
         $currentUsername = mysqli_real_escape_string($db, $_SESSION['username']);
         $userQuery = "SELECT id FROM users WHERE username = '$currentUsername'";
         $userResult = mysqli_query($db, $userQuery);
@@ -53,20 +51,20 @@
         $action = $_POST['action'];
     
         if ($action == 'accept') {
-            // Update the status in system_access_requests
+            
             $updateRequestQuery = "UPDATE system_access_requests SET status = 'accepted' WHERE id = '$requestId'";
             mysqli_query($db, $updateRequestQuery);
     
-            // Fetch system_id and requesting_user_id to grant access
+            
             $fetchRequestQuery = "SELECT system_id, requesting_user_id FROM system_access_requests WHERE id = '$requestId'";
             $requestResult = mysqli_query($db, $fetchRequestQuery);
             $requestData = mysqli_fetch_assoc($requestResult);
     
-            // Insert record into system_user_access
+            
             $insertAccessQuery = "INSERT INTO system_user_access (system_id, user_id, access_granted_date) VALUES ('{$requestData['system_id']}', '{$requestData['requesting_user_id']}', NOW())";
             mysqli_query($db, $insertAccessQuery);
         } elseif ($action == 'deny') {
-            // Update the status in system_access_requests to 'denied'
+            
             $updateRequestQuery = "UPDATE system_access_requests SET status = 'denied' WHERE id = '$requestId'";
             mysqli_query($db, $updateRequestQuery);
         }

@@ -4,13 +4,12 @@ session_start();
 
 // Funkce pro odhlášení uživatele
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset(); 
+    session_destroy(); 
+    header('Location: index.html'); 
+    exit(); 
 }
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
@@ -24,18 +23,15 @@ include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-// SQL dotaz pro získání dat ze tabulky "devices"
 $selectQuery = "SELECT * FROM devices";
-
-// Vykonání dotazu
 $result = mysqli_query($db, $selectQuery);
 
 if (!$result) {
     die('Chyba dotazu: ' . mysqli_error($db));
 }
 
-$successMessage = ''; // Inicializace proměnné pro úspěšnou zprávu prázdnou hodnotou
-$errorMessage = ''; // Inicializace proměnné pro chybovou zprávu prázdnou hodnotou
+$successMessage = ''; 
+$errorMessage = ''; 
 
 
 
@@ -45,21 +41,21 @@ if (isset($_POST['createDevice'])) {
     $deviceType = mysqli_real_escape_string($db, $_POST['deviceType']);
     $deviceDescription = mysqli_real_escape_string($db, $_POST['deviceDescription']);
     $userAlias = mysqli_real_escape_string($db, $_POST['userAlias']);
-    $hodnota = $_POST['hodnota']; // Hodnota nemusí být escape, protože se nepoužívá v SQL dotazu
+    $hodnota = $_POST['hodnota']; 
     $jednotka = mysqli_real_escape_string($db, $_POST['jednotka']);
-    $maintenanceInterval = $_POST['maintenanceInterval']; // Interval nemusí být escape, protože se nepoužívá v SQL dotazu
+    $maintenanceInterval = $_POST['maintenanceInterval']; 
 
-    // Kontrola, zda jsou datové typy správné pro pole hodnota a maintenance_interval
+
     if (!is_numeric($hodnota) || !is_numeric($maintenanceInterval)) {
         $errorMessage = "Chyba: Pole 'Hodnota' a 'Interval údržby' musí být číselné hodnoty.";
     } else {
-        // Pokud jsou datové typy správné, provedeme vložení do databáze
+        
         $insertQuery = "INSERT INTO devices (device_name, device_type, device_description, user_alias, hodnota, jednotka, maintenance_interval) 
                         VALUES ('$deviceName', '$deviceType', '$deviceDescription', '$userAlias', '$hodnota', '$jednotka', '$maintenanceInterval')";
 
         if (mysqli_query($db, $insertQuery)) {
             $_SESSION['successMessage'] = "Zařízení bylo úspěšně vytvořeno.";
-            header('Location: devices.php'); // Přesměrování na stránku se seznamem zařízení
+            header('Location: devices.php');
         } else {
             $errorMessage = "Zařízení se nepodařilo vytvořit.";
         }
@@ -70,12 +66,12 @@ if (isset($_POST['createDevice'])) {
 if (isset($_POST['deleteDevice'])) {
     $deleteDeviceId = mysqli_real_escape_string($db, $_POST['deleteDeviceId']);
 
-    // SQL dotaz pro smazání zařízení z databáze
+   
     $deleteDeviceQuery = "DELETE FROM devices WHERE id = '$deleteDeviceId'";
 
     if (mysqli_query($db, $deleteDeviceQuery)) {
         $_SESSION['successMessageTable'] = "Zařízení s ID $deleteDeviceId bylo úspěšně smazáno.";
-        header('Location: ' . $_SERVER['PHP_SELF']); // Přesměrování na stejnou stránku pro aktualizaci tabulky
+        header('Location: ' . $_SERVER['PHP_SELF']); 
     } else {
         echo 'Chyba při mazání zařízení: ' . mysqli_error($db);
     }
@@ -121,7 +117,6 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
 <div class="centered-form">
 <h2>Vytvořit nové zařízení</h2>
     <?php
-    // Zobrazíme úspěšnou zprávu, pokud existuje
     if (!empty($successMessage)) {
         echo '<p style="color: green;">' . $successMessage . '</p>';
     }
@@ -170,7 +165,7 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
         <div class="form-group">
             <button class="btn-submit" type="submit" name="createDevice">Vytvořit zařízení</button>
         </div>
-        <p id="successMessage" style="color: green;"></p> <!-- Výpis úspěšného vytvoření zařízení -->
+        <p id="successMessage" style="color: green;"></p> 
 
     </form>
 </div>
@@ -178,7 +173,6 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
 <?php
         if (isset($_SESSION['successMessage'])) {
             echo '<p style="color: green;">' . $_SESSION['successMessage'] . '</p>';
-            // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
             unset($_SESSION['successMessage']);
         }
 ?>
@@ -196,8 +190,8 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
             <th>Hodnota</th>
             <th>Jednotka</th>
             <th>Interval údržby (dny)</th>
-            <th>Smazat</th> <!-- Přidáme sloupec pro tlačítko Smazat -->
-            <th>Upravit</th> <!-- Přidán sloupec pro tlačítko "Upravit" -->
+            <th>Smazat</th> 
+            <th>Upravit</th> 
         </tr>
 
         <?php while ($row = mysqli_fetch_assoc($result)) : ?>
@@ -227,10 +221,10 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
     </table>
 
     <?php
-    // Zobrazíme zprávu o úspěšném vytvoření zařízení pod tabulkou, pokud je k dispozici
+
     if (isset($_SESSION['successMessageTable'])) {
         echo '<p id="successMessageTable" style="color: green;">' . $_SESSION['successMessageTable'] . '</p>';
-        // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
+       
         unset($_SESSION['successMessageTable']);
     }
     ?>

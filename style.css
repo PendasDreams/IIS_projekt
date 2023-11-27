@@ -10,7 +10,7 @@ body {
 }
 
 .container {
-    text-align: center; /* Nový styl pro centrování textu a formuláře */
+    text-align: center; 
 }
 
 .login-heading {
@@ -41,7 +41,7 @@ input[type="password"] {
 }
 
 .button-container {
-    text-align: center; /* Nový styl pro centrování tlačítek */
+    text-align: center; 
 }
 
 input[type="submit"] {

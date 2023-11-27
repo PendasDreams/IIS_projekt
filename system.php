@@ -6,15 +6,13 @@ include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-// Dotaz pro odstranění tabulky systems (pokud existuje)
-//$dropTableQuery = "DROP TABLE IF EXISTS systems";
 
 // Funkce pro odhlášení uživatele
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset();
+    session_destroy();
+    header('Location: index.html'); 
+    exit(); 
 }
 
 function systemExists($db, $systemName) {
@@ -30,17 +28,16 @@ function systemExists($db, $systemName) {
     return $row['count'] > 0;
 }
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
+
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-// Fetching the user ID of the currently logged-in user
+
 $userIdQuery = "SELECT id FROM users WHERE username = '$currentUsername'";
 $userIdResult = mysqli_query($db, $userIdQuery);
 $userIdData = mysqli_fetch_assoc($userIdResult);
-$loggedInUserId = $userIdData['id']; // User ID of the logged-in user
+$loggedInUserId = $userIdData['id']; // ID prihlaseneho uzivatele
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
 if (isset($_POST['logout'])) {
     logoutUser();
 }
@@ -55,7 +52,7 @@ if (isset($_POST['addSystem'])) {
     $newSystemName = mysqli_real_escape_string($db, $_POST['newSystemName']);
     $newSystemDescription = mysqli_real_escape_string($db, $_POST['newSystemDescription']);
     
-    // For admin, use the selected admin ID from the form; for registered users, use their own user ID
+   
     $newSystemAdminID = $currentRole == 'admin' ? mysqli_real_escape_string($db, $_POST['newSystemAdminID']) : $loggedInUserId;
 
     if (!systemExists($db, $newSystemName)) {
@@ -92,13 +89,13 @@ if (isset($_POST['requestAccess'])) {
     $systemId = mysqli_real_escape_string($db, $_POST['requestAccessSystemId']);
     $currentDate = date('Y-m-d H:i:s');
 
-    // Check if request already exists
+    // Check zda jiz dany request neexistuje
     $checkRequestQuery = "SELECT COUNT(*) as count FROM system_access_requests WHERE system_id = '$systemId' AND requesting_user_id = '$loggedInUserId'";
     $checkRequestResult = mysqli_query($db, $checkRequestQuery);
     $checkRequestData = mysqli_fetch_assoc($checkRequestResult);
 
     if ($checkRequestData['count'] == 0) {
-        // Insert request into the database
+        
         $insertRequestQuery = "INSERT INTO system_access_requests (system_id, requesting_user_id, status, request_date) VALUES ('$systemId', '$loggedInUserId', 'pending', '$currentDate')";
         
         if (mysqli_query($db, $insertRequestQuery)) {
@@ -116,13 +113,13 @@ if (isset($_POST['shareSystem'])) {
     $shareWithUserId = mysqli_real_escape_string($db, $_POST['shareWithUserId']);
     $currentDate = date('Y-m-d H:i:s');
 
-    // Check if user already has access
+    // Check zda jiz nema uzivatel pristup
     $checkAccessQuery = "SELECT COUNT(*) as count FROM system_user_access WHERE system_id = '$systemId' AND user_id = '$shareWithUserId'";
     $checkAccessResult = mysqli_query($db, $checkAccessQuery);
     $checkAccessData = mysqli_fetch_assoc($checkAccessResult);
 
     if ($checkAccessData['count'] == 0) {
-        // Insert shared access into the database
+        
         $insertAccessQuery = "INSERT INTO system_user_access (system_id, user_id, access_granted_date) VALUES ('$systemId', '$shareWithUserId', '$currentDate')";
         
         if (mysqli_query($db, $insertAccessQuery)) {
@@ -139,13 +136,13 @@ $ownedSystemsQuery = "";
 $sharedSystemsQuery = "";
 
 if ($currentRole == 'admin') {
-    // Admin sees all systems
+    
     $ownedSystemsQuery = "SELECT s.id, s.name, s.description, s.admin_id, u.username 
                           FROM systems s 
                           JOIN users u ON s.admin_id = u.id";
-    $sharedSystemsQuery = ""; // Admin doesn't need to see shared systems separately
+    $sharedSystemsQuery = "";
 } else {
-    // Non-admin users see their own systems and systems shared with them
+    
     $userIdQuery = "SELECT id FROM users WHERE username = '$currentUsername'";
     $userIdResult = mysqli_query($db, $userIdQuery);
     $userIdData = mysqli_fetch_assoc($userIdResult);
@@ -170,7 +167,6 @@ if ($currentRole == 'admin') {
     $otherSystemsResult = mysqli_query($db, $otherSystemsQuery);
 }
 
-// Dotaz pro získání všech systémů
 $query = "SELECT s.*, u.username
     FROM systems as s, users as u WHERE s.admin_id = u.id;";
 
@@ -179,10 +175,6 @@ $result = mysqli_query($db, $query);
 if (!$result) {
     die('Chyba dotazu: ' . mysqli_error($db));
 }
-
-// $usersQuery = "SELECT id, username FROM users";
-// $usersResult = mysqli_query($db, $usersQuery);
-// $users = mysqli_fetch_all($usersResult, MYSQLI_ASSOC);
 
 
 $usersDropdownQuery = "SELECT u.id, u.username 
@@ -193,11 +185,10 @@ $usersDropdownResult = mysqli_query($db, $usersDropdownQuery);
 $usersDropdown = mysqli_fetch_all($usersDropdownResult, MYSQLI_ASSOC);
 
 
-// Fetch and display owned systems
+
 $ownedResult = mysqli_query($db, $ownedSystemsQuery);
 
 if ($currentRole != 'admin') {
-    // Fetch and display shared systems
     $sharedResult = mysqli_query($db, $sharedSystemsQuery);
 }
 
@@ -268,7 +259,6 @@ if ($currentRole != 'admin') {
 <?php endif; ?>
 
 <?php if($currentRole != 'guest'): ?>
-    <!-- Owned Systems Table -->
     <h2>Vlastněné systémy</h2>
     <table style="margin-bottom: 20px;">
         <tr>
@@ -288,7 +278,7 @@ if ($currentRole != 'admin') {
                                             FROM users u 
                                             JOIN roles r ON u.role = r.id 
                                             WHERE r.role NOT IN ('broker', 'guest', 'admin')
-                                            AND u.id != '{$row['admin_id']}'"; // Exclude the owner of the current system
+                                            AND u.id != '{$row['admin_id']}'"; 
             $usersDropdownResultForSystem = mysqli_query($db, $usersDropdownQueryForSystem);
             $usersDropdownForSystem = mysqli_fetch_all($usersDropdownResultForSystem, MYSQLI_ASSOC);
             ?>
@@ -303,7 +293,7 @@ if ($currentRole != 'admin') {
                     </form>
                 </td>
                 <td>
-                    <!-- Tlačítko pro úpravu systému -->
+                    
                     <form method="POST" action="edit_systems.php">
                         <input type="hidden" name="editSystemId" value="<?= $row['id'] ?>">
                         <input type="hidden" name="editSystemName" value="<?= $row['name'] ?>">
@@ -313,7 +303,7 @@ if ($currentRole != 'admin') {
                     </form>
                 </td>
                 <td>
-                    <form method="POST" action="add_devices_to_system.php"> <!-- Přidat tlačítko pro přidání zařízení do systému -->
+                    <form method="POST" action="add_devices_to_system.php"> 
                         <input type="hidden" name="addDeviceToSystem" value="<?= $row['id'] ?>">
                         <button class="edit-button" type="submit" name="loadAddDeviceToSystem">Přidat zařízení</button>
                     </form>
@@ -342,7 +332,7 @@ if ($currentRole != 'admin') {
     
 
     <?php if ($currentUsername != 'admin'): ?>
-        <!-- Shared Systems Table -->
+       
         <h2>Sdílené systémy</h2>
         <table style="margin-bottom: 80px;">
             <tr>
@@ -363,7 +353,7 @@ if ($currentRole != 'admin') {
     <?php endif; ?>
 
     <?php if ($currentUsername != 'admin'): ?>
-        <!-- Other Systems Table -->
+        
         <h2>Ostatní systémy</h2>
         <table>
             <tr>
@@ -390,7 +380,7 @@ if ($currentRole != 'admin') {
         </table>
     <?php endif; ?>
 <?php else: ?>
-    <!-- Systems Overview Table for Guests (View Only, No Management Actions) -->
+
     <h2>Seznam systémů</h2>
         <table>
             <tr>

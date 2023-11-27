@@ -42,26 +42,25 @@
     text-align: center;
     display: block;
     width: 100%;
-    padding: 0px 0; /* Snížení výšky tlačítka (změna v této řádce) */
+    padding: 0px 0; 
     cursor: pointer;
 }
 
 
-/* Styly pro tabulku s uživateli */
 table {
-    width: 100%; /* Roztáhne tabulku na celou šířku obsahu */
-    border-collapse: collapse; /* Sloučí okraje buněk */
-    margin-top: 20px; /* Vertikální odsazení od nadpisu */
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 20px;
 }
 
 table, th, td {
-    border: 1px solid #ccc; /* Ohraničení buněk */
-    text-align: center; /* Zarovnání textu na střed buněk */
-    padding: 8px; /* Vnitřní odsazení buněk */
+    border: 1px solid #ccc; 
+    text-align: center; 
+    padding: 8px; 
 }
 
 th {
-    background-color: #FF5733; /* Barva pozadí pro hlavičku tabulky */
+    background-color: #FF5733; 
     color: white;
 }
 .user-form {
@@ -103,20 +102,19 @@ input[type="password"] {
     background-color: #0056b3;
 }
 
-/* Stylizace tlačítka pro smazání */
+
 .delete-button {
-    background-color: #ff0000; /* Červená barva pozadí */
-    color: #fff; /* Bílá barva textu */
+    background-color: #ff0000; 
+    color: #fff;
     border: none;
-    padding: 5px 8px; /* Zmenšeno o 2px v šířce */
+    padding: 5px 8px; 
     cursor: pointer;
-    margin: auto auto; /* Zarovnání na střed horizontálně a vertikálně */
-    display: block; /* Zobrazit tlačítko jako blokový prvek */
+    margin: auto auto; 
+    display: block; 
     border-radius: 5px;
 
 }
 
-/* Stylizace hlavičky tabulky */
 table {
     border-collapse: collapse;
     width: 100%;
@@ -128,22 +126,22 @@ th, td {
 }
 
 th {
-    background-color: #ff0000; /* Červená barva pozadí pro hlavičku */
-    color: #fff; /* Bílá barva textu pro hlavičku */
+    background-color: #ff0000; 
+    color: #fff; 
 }
 
 tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-/* Zarovnání tlačítek na střed */
+
 .button-cell {
     text-align: center;
 }
 
 .edit-button {
-    background-color: #007bff; /* Modrá barva pozadí */
-    color: #fff; /* Bílá barva textu */
+    background-color: #007bff; 
+    color: #fff; 
     border: none;
     padding: 5px 8px;
     cursor: pointer;
@@ -153,50 +151,50 @@ tr:nth-child(even) {
 }
 
 .edit-button:hover {
-    background-color: #0056b3; /* Barva pozadí při najetí myší */
+    background-color: #0056b3;
 }
 
 .error-message {
-    background-color: yellow; /* Žluté pozadí */
-    color: red; /* Červená barva textu */
-    padding: 10px; /* Vnitřní odsazení pro zlepšení vzhledu */
-    margin-top: 10px; /* Odsazení od nadřazeného obsahu */
-    border: 1px solid #ffcc00; /* Rámeček kolem chybové zprávy */
-    border-radius: 5px; /* Zaoblené rohy */
-    font-weight: bold; /* Tučné písmo */
+    background-color: yellow; 
+    color: red; 
+    padding: 10px; 
+    margin-top: 10px; 
+    border: 1px solid #ffcc00; 
+    border-radius: 5px; 
+    font-weight: bold; 
 }
 
 .logout-button {
-    background-color: red; /* Červená barva pozadí tlačítka */
-    color: white; /* Bílý text na tlačítku */
-    border: none; /* Bez okraje */
-    padding: 10px 20px; /* Vnější okraje tlačítka */
-    cursor: pointer; /* Ukazatel ruky na hover (pro interaktivitu) */
-    margin-left: 10px; /* Odsazení tlačítka od levého okraje */
-    font-family: Arial, sans-serif; /* Použití fontu Arial nebo sans-serif, pokud Arial není k dispozici */
-    font-size: 16px; /* Velikost písma 16px (upravte podle svých preferencí) */
-    font-weight: bold; /* Tučný text */
+    background-color: red; 
+    color: white; 
+    border: none; 
+    padding: 10px 20px; 
+    cursor: pointer;
+    margin-left: 10px; 
+    font-family: Arial, sans-serif; 
+    font-size: 16px; 
+    font-weight: bold;
 }
 
 .system-button {
-    background-color: red; /* Červená barva pozadí tlačítka */
-    color: white; /* Bílý text na tlačítku */
-    padding: 10px 20px; /* Vnější okraje tlačítka */
-    border: none; /* Bez okraje */
-    border-radius: 5px; /* Zaoblené rohy */
-    text-decoration: none; /* Odstranění podtržení odkazu */
+    background-color: red; 
+    color: white;
+    padding: 10px 20px; 
+    border: none; 
+    border-radius: 5px;
+    text-decoration: none; 
     margin-right: 20px;
     
-    /* Zarovnání tlačítka doleva */
+
     float: left;
 }
 
 .system-button:hover {
-    background-color: darkred; /* Červená barva pozadí při najetí myší */
+    background-color: darkred;
 }
 
 input[type="text"],
 textarea {
-    max-width: 250px; /* Nastavte maximální šířku textových polí podle potřeby */
-    text-align: left; /* Zarovnání textu doleva */
+    max-width: 250px; 
+    text-align: left;
 }

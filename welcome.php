@@ -3,22 +3,22 @@ session_start();
 
 // Funkce pro odhlášení uživatele
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset(); 
+    session_destroy(); 
+    header('Location: index.html'); 
+    exit(); 
 }
 
-// Připojení k databázi
+
 include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
+
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
+
 if (isset($_POST['logout'])) {
     logoutUser();
 }
@@ -27,8 +27,8 @@ if (isset($_POST['logout'])) {
 <html>
 <head>
     <title>Přihlášení</title>
-    <link rel="stylesheet" type="text/css" href="welcome_style.css"> <!-- Import stylů z externího souboru -->
-    <link rel="stylesheet" type="text/css" href="styles.css"> <!-- Import stylů z externího souboru -->
+    <link rel="stylesheet" type="text/css" href="welcome_style.css"> 
+    <link rel="stylesheet" type="text/css" href="styles.css"> 
 </head>
 <body>
 <div class="user-bar">
@@ -65,14 +65,13 @@ if (isset($_POST['logout'])) {
             }
         ?>
         
-        <h2><a href="system.php">Systémy</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
+        <h2><a href="system.php">Systémy</a></h2> 
         <div>Vám dostupné informace o systémech Jméno, Popis, Admin a správa systému</div>
-        <h2><a href="devices.php">Zařízení</a></h2> <!-- Nadpis pro sekci "Uživatelé" -->
+        <h2><a href="devices.php">Zařízení</a></h2> 
         <div>Vám dostupné informace o zařízeních Jméno, Popis, Alias, Typ, Jednotka, Interval údržby a správa zařízení</div>
     </div>
 <?php endif; ?>
 
-<!-- ... (váš stávající kód) ... -->
 
 <?php if ($currentRole !== 'admin' && $currentRole !== 'registered') : ?>
     <div>Dobrý den, jste přihlášený jako host můžete si prohlížet zakladní informace o systémech a zařízeních</div>

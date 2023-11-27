@@ -2,10 +2,10 @@
 session_start();
 
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset(); 
+    session_destroy(); 
+    header('Location: index.html');
+    exit(); 
 }
 
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
@@ -22,20 +22,17 @@ if (isset($_POST['systemID'])){
 }
 $systemID = isset($_SESSION['systemID']) ? $_SESSION['systemID'] : null;
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
+
 if (isset($_POST['logout'])) {
     logoutUser();
 }
 
-// Připojení k databázi
 include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-// SQL dotaz pro získání dat ze tabulky "devices"
 $selectQuery = "SELECT k.id as id, d.device_name as DName, k.val as KVal, c.typ as comp, d.hodnota as DVal FROM KPI as k, devices as d, compare as c WHERE k.device_id = d.id AND k.typ = c.id AND k.system_id = '$systemID'";
 
-// Vykonání dotazu
 $result = mysqli_query($db, $selectQuery);
 
 if (!$result) {
@@ -46,41 +43,40 @@ $selectQuery2 = "SELECT d.id as id, d.device_name as device FROM devices as d, s
 
 $deviceResult = mysqli_query($db, $selectQuery2);
 
-$successMessage = ''; // Inicializace proměnné pro úspěšnou zprávu prázdnou hodnotou
-$errorMessage = ''; // Inicializace proměnné pro chybovou zprávu prázdnou hodnotou
+$successMessage = ''; 
+$errorMessage = ''; 
 
 if (isset($_POST['createKPI'])) {
     $newDevID = $_POST['device'];
     $newVal = $_POST['value'];
     $newComp = $_POST['compType'];
-    // Kontrola, zda jsou datové typy správné pro pole hodnota a maintenance_interval
+    
     if (!is_numeric($newVal)){
         $errorMessage = "Chyba: Pole 'Hodnota' a 'Interval údržby' musí být číselné hodnoty.";
     } else {
-        // Pokud jsou datové typy správné, provedeme vložení do databáze
+        
         $insertQuery = "INSERT INTO KPI (val, device_id, system_id, typ)
                         VALUES ('$newVal', '$newDevID', '$systemID','$newComp')";
 
         if (mysqli_query($db, $insertQuery)) {
             $_SESSION['successMessage'] = "KPI bylo úspěšně vytvořeno.";
-            header('Location: kpi.php'); // Přesměrování na stránku se seznamem zařízení
+            header('Location: kpi.php'); 
         } else {
             $errorMessage = "Zařízení se nepodařilo vytvořit.";
         }
     }
 }
 
-// Zpracování formuláře pro mazání KPI
 
 if (isset($_POST['deleteKPI'])) {
     $deleteKPIId = mysqli_real_escape_string($db, $_POST['deleteKPIId']);
 
-    // SQL dotaz pro smazání zařízení z databáze
+   
     $deleteKPIQuery = "DELETE FROM KPI WHERE id = '$deleteKPIId'";
 
     if (mysqli_query($db, $deleteKPIQuery)) {
         $_SESSION['successMessageTable'] = "KPI s ID $deleteKPIId bylo úspěšně smazáno.";
-        header('Location: ' . $_SERVER['PHP_SELF']); // Přesměrování na stejnou stránku pro aktualizaci tabulky
+        header('Location: ' . $_SERVER['PHP_SELF']); 
     } else {
         echo 'Chyba při mazání zařízení: ' . mysqli_error($db);
     }
@@ -133,7 +129,7 @@ else:
     <div class="centered-form">
     <h2>Vytvořit Kličový indentifikátor výkonu (KPI)</h2>
         <?php
-        // Zobrazíme úspěšnou zprávu, pokud existuje
+        
         if (!empty($successMessage)) {
             echo '<p style="color: green;">' . $successMessage . '</p>';
         }
@@ -168,7 +164,7 @@ else:
         <div class="form-group">
             <button class="btn-submit" type="submit" name="createKPI">Vytvořit KPI</button>
         </div>
-        <p id="successMessage" style="color: green;"></p> <!-- Výpis úspěšného vytvoření zařízení -->
+        <p id="successMessage" style="color: green;"></p> 
 
         </form>
     </div>
@@ -177,7 +173,7 @@ else:
 <?php
         if (isset($_SESSION['successMessage'])) {
             echo '<p style="color: green;">' . $_SESSION['successMessage'] . '</p>';
-            // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
+            
             unset($_SESSION['successMessage']);
         }
     ?>
@@ -239,10 +235,10 @@ else:
     </table>
 
     <?php
-    // Zobrazíme zprávu o úspěšném vytvoření zařízení pod tabulkou, pokud je k dispozici
+    
     if (isset($_SESSION['successMessageTable'])) {
         echo '<p id="successMessageTable" style="color: green;">' . $_SESSION['successMessageTable'] . '</p>';
-        // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
+    
         unset($_SESSION['successMessageTable']);
     }
     ?>

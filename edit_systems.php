@@ -3,17 +3,16 @@ session_start();
 
 // Funkce pro odhlášení uživatele
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset(); 
+    session_destroy();
+    header('Location: index.html'); 
+    exit(); 
 }
 
-// Dotaz pro výpis aktuálně přihlášeného uživatele
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
 $currentRole = isset($_SESSION['role']) ? $_SESSION['role'] : null;
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
+
 if (isset($_POST['logout'])) {
     logoutUser();
 }
@@ -23,25 +22,21 @@ include_once("connect.php");
 $db = mysqli_init();
 pripojit();
 
-$editSystemId = null; // Initialize $editSystemId to null
+$editSystemId = null; 
 
+// Pro moznost refreshu stránky
 if (isset($_POST['editSystemId'])) {
-    // Assign POST value if available
     $editSystemId = $_POST['editSystemId'];
-    // Store in session if the user is not 'admin'
     if ($_SESSION['username'] != 'admin') {
         $_SESSION['editSystemId'] = $editSystemId;
     }
 } elseif (isset($_SESSION['editSystemId'])) {
-    // Use session value if POST value is not available
     $editSystemId = $_SESSION['editSystemId'];
 }
 
 $editSystemName = isset($_POST['editSystemName']) ? $_POST['editSystemName'] : null;
 $editSystemDescription = isset($_POST['editSystemDescription']) ? $_POST['editSystemDescription'] : null;
 
-
-// Fetch system details for editing
 if ($editSystemId) {
     $systemQuery = "SELECT * FROM systems WHERE id = '$editSystemId'";
     $systemResult = mysqli_query($db, $systemQuery);
@@ -51,12 +46,10 @@ if ($editSystemId) {
     $editSystemAdminID = $systemData['admin_id'];
 }
 
-// Fetch users for dropdown
 $usersDropdownQuery = "SELECT u.id, u.username FROM users u JOIN roles r ON u.role = r.id WHERE r.role NOT IN ('broker', 'guest', 'admin')";
 $usersDropdownResult = mysqli_query($db, $usersDropdownQuery);
 $usersDropdown = mysqli_fetch_all($usersDropdownResult, MYSQLI_ASSOC);
 
-// Poté můžete tyto informace použít v formuláři pro úpravu systému
 
 
 if (isset($_POST['updateSystem'])) {
@@ -65,11 +58,11 @@ if (isset($_POST['updateSystem'])) {
     $editSystemDescription = mysqli_real_escape_string($db, $_POST['editSystemDescription']);
     $editSystemAdminID = mysqli_real_escape_string($db, $_POST['editSystemAdminID']);
 
-    // Update system details
+    
     $updateQuery = "UPDATE systems SET name = '$editSystemName', description = '$editSystemDescription', admin_id = '$editSystemAdminID' WHERE id = '$editSystemId'";
     mysqli_query($db, $updateQuery);
 
-    // Remove selected users
+   
     if (isset($_POST['usersToRemove'])) {
         foreach ($_POST['usersToRemove'] as $userIdToRemove) {
             $userIdToRemove = mysqli_real_escape_string($db, $userIdToRemove);
@@ -78,7 +71,7 @@ if (isset($_POST['updateSystem'])) {
         }
     }
 
-    // Redirect to refresh the page
+    
     header('Location: system.php');
     exit();
 }
@@ -173,12 +166,8 @@ if (isset($_POST['updateSystem'])) {
         <button class="btn-submit" type="submit" name="updateSystem">Uložit změny</button>
     </div>
 </form>
-
-
    
 </div>
-
-
 
 </body>
 </html>

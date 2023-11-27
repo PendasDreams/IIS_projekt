@@ -2,10 +2,10 @@
 session_start();
 
 function logoutUser() {
-    session_unset(); // Vyprázdnění všech session proměnných
-    session_destroy(); // Zničení session
-    header('Location: index.html'); // Přesměrování na index.html
-    exit(); // Zastavení běhu skriptu
+    session_unset();
+    session_destroy(); 
+    header('Location: index.html'); 
+    exit(); 
 }
 
 $currentUsername = isset($_SESSION['username']) ? $_SESSION['username'] : null;
@@ -27,7 +27,7 @@ if (isset($_POST['editKPI'])){
 }
 $editKPI = isset($_SESSION['editKPI']) ? $_SESSION['editKPI'] : null;
 
-// Odhlášení uživatele po kliknutí na tlačítko odhlášení
+
 if (isset($_POST['logout'])) {
     logoutUser();
 }
@@ -38,16 +38,16 @@ $db = mysqli_init();
 pripojit();
 
 
-// SQL dotaz pro získání dat ohledně KPI
+
 $selectQuery = "SELECT k.id as id, d.device_name as DName, k.val as KVal, c.typ as comp, d.hodnota as DVal FROM KPI as k, devices as d, compare as c 
     WHERE k.device_id = d.id AND k.typ = c.id AND k.system_id = '$systemID' AND k.id = '$editKPI'";
 
-// Vykonání dotazu
+
 $result = mysqli_query($db, $selectQuery);
 if (!$result) {
     die('Chyba dotazu: ' . mysqli_error($db));
 }
-// SQL dotaz pro detailnějších dat KPI
+
 $selectQuery2 = "SELECT d.id as id, d.device_name as device FROM devices as d, system_devices as sd 
     WHERE sd.device_id = d.id AND sd.system_id = '$systemID'";
 $deviceResult = mysqli_query($db, $selectQuery2);
@@ -61,8 +61,8 @@ if (!$updateResult) {
     die('Chyba dotazu: ' . mysqli_error($db));
 }
 
-$successMessage = ''; // Inicializace proměnné pro úspěšnou zprávu prázdnou hodnotou
-$errorMessage = ''; // Inicializace proměnné pro chybovou zprávu prázdnou hodnotou
+$successMessage = ''; 
+$errorMessage = ''; 
 
 if (isset($_POST['save'])) {
     $test = mysqli_fetch_assoc($updateResult);
@@ -88,7 +88,7 @@ if (isset($_POST['save'])) {
         WHERE id = '$editKPI'";
     if (mysqli_query($db, $editKPIQuery)) {
         echo "KPI s ID $editKPI byl úspěšně upraven.";
-        header('Location: kpi.php'); // Přesměrování na stránku se seznamem KPI
+        header('Location: kpi.php'); 
     } else {
                 $errorMessage = 'Chyba při úpravě uživatele: ' . mysqli_error($db);
             }
@@ -140,7 +140,7 @@ if ($currentRole == "guest"):
 else:
         if (isset($_SESSION['successMessage'])) {
             echo '<p style="color: green;">' . $_SESSION['successMessage'] . '</p>';
-            // Po zobrazení zprávy ji vymažeme z session, aby se nezobrazovala znovu
+            
             unset($_SESSION['successMessage']);
         }
 ?>
