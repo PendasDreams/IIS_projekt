@@ -22,34 +22,37 @@ while ($role = mysqli_fetch_assoc($rolesResult)) {
 $errorMessage = ''; 
 
 if (isset($_POST['addUser'])) {
-    $newUsername = mysqli_real_escape_string($db, $_POST['newUsername']);
-    $newPassword = mysqli_real_escape_string($db, $_POST['newPassword']);
-    $newRole = mysqli_real_escape_string($db, $_POST['newRole']);
+    $newUsername = $_POST['newUsername'];
+    $newPassword = $_POST['newPassword']; 
+    $newRole = $_POST['newRole'];
 
-    // Kontrola, zda je zadaná role v seznamu povolených rolí
     if (array_key_exists($newRole, $allRoles)) {
-        // Kontrola, zda již existuje uživatel se stejným jménem
-        $checkDuplicateQuery = "SELECT * FROM users WHERE username = '$newUsername'";
-        $duplicateResult = mysqli_query($db, $checkDuplicateQuery);
+        
+        $checkDuplicateStmt = $db->prepare("SELECT id FROM users WHERE username = ?");
+        $checkDuplicateStmt->bind_param("s", $newUsername);
+        $checkDuplicateStmt->execute();
+        
+        
+        $checkDuplicateStmt->bind_result($userId);
+        $isDuplicate = $checkDuplicateStmt->fetch();
 
-        if (!$duplicateResult) {
-            die('Chyba dotazu: ' . mysqli_error($db));
-        }
+        if (!$isDuplicate) {
+            
+            $insertStmt = $db->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+            $insertStmt->bind_param("sss", $newUsername, $newPassword, $newRole);
 
-        if (mysqli_num_rows($duplicateResult) == 0) {
-
-            $insertQuery = "INSERT INTO users (username, password, role) VALUES ('$newUsername', '$newPassword', $newRole)";
-            $insertResult = mysqli_query($db, $insertQuery);
-
-            if ($insertResult) {
-                echo "Uživatel '$newUsername' byl úspěšně přidán.";
-                header('Location: editusers.php'); 
+            if ($insertStmt->execute()) {
+                $_SESSION['successMessage'] = "Uživatel '$newUsername' byl úspěšně přidán.";
+                header('Location: editusers.php');
+                exit();
             } else {
-                $errorMessage = 'Chyba při přidávání uživatele: ' . mysqli_error($db);
+                $errorMessage = 'Chyba při přidávání uživatele: ' . $insertStmt->error;
             }
+            $insertStmt->close();
         } else {
             $errorMessage = "Uživatel se jménem '$newUsername' již existuje.";
         }
+        $checkDuplicateStmt->close();
     } else {
         $errorMessage = 'Zadaná role není platná. Povolené role jsou: ' . implode(', ', $allowedRoles);
     }
@@ -83,36 +86,43 @@ if (isset($_POST['loadEditForm'])) {
 }
 
 if (isset($_POST['editUser'])) {
-    $editUserId = mysqli_real_escape_string($db, $_POST['editUserId']);
-    $editedUsername = mysqli_real_escape_string($db, $_POST['editedUsername']);
-    $editedPassword = mysqli_real_escape_string($db, $_POST['editedPassword']);
-    $editedRole = mysqli_real_escape_string($db, $_POST['editedRole']);
+    $editUserId = $_POST['editUserId'];
+    $editedUsername = $_POST['editedUsername'];
+    $editedPassword = $_POST['editedPassword']; 
+    $editedRole = $_POST['editedRole'];
 
     if (array_key_exists($editedRole, $allRoles)) {
-        // Kontrola, zda již existuje uživatel se stejným jménem
-        $checkDuplicateQuery = "SELECT * FROM users WHERE username = '$editedUsername' AND id != '$editUserId'";
-        $duplicateResult = mysqli_query($db, $checkDuplicateQuery);
+        
+        $checkDuplicateStmt = $db->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+        $checkDuplicateStmt->bind_param("si", $editedUsername, $editUserId);
+        $checkDuplicateStmt->execute();
 
-        if (!$duplicateResult) {
-            die('Chyba dotazu: ' . mysqli_error($db));
-        }
+        
+        $checkDuplicateStmt->bind_result($duplicateUserId);
+        $isDuplicate = $checkDuplicateStmt->fetch();
 
-        if (mysqli_num_rows($duplicateResult) == 0) {
+        if (!$isDuplicate) {
             
-            $editUserQuery = "UPDATE users SET username = '$editedUsername', password = '$editedPassword', role = $editedRole WHERE id = '$editUserId'";
-            if (mysqli_query($db, $editUserQuery)) {
-                echo "Uživatel s ID $editUserId byl úspěšně upraven.";
-                header('Location: editusers.php'); 
+            $editUserStmt = $db->prepare("UPDATE users SET username = ?, password = ?, role = ? WHERE id = ?");
+            $editUserStmt->bind_param("sssi", $editedUsername, $editedPassword, $editedRole, $editUserId);
+
+            if ($editUserStmt->execute()) {
+                $_SESSION['successMessage'] = "Uživatel s ID $editUserId byl úspěšně upraven.";
+                header('Location: editusers.php');
+                exit();
             } else {
-                $errorMessage = 'Chyba při úpravě uživatele: ' . mysqli_error($db);
+                $errorMessage = 'Chyba při úpravě uživatele: ' . $editUserStmt->error;
             }
+            $editUserStmt->close();
         } else {
             $errorMessage = "Uživatel se jménem '$editedUsername' již existuje.";
         }
+        $checkDuplicateStmt->close();
     } else {
         $errorMessage = 'Zadaná role není platná. Povolené role jsou: ' . implode(', ', $allowedRoles);
     }
 }
+
 
 if (isset($_POST['logout'])) {
     
