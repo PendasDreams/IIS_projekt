@@ -61,17 +61,21 @@ if (isset($_POST['addUser'])) {
 if (isset($_POST['deleteUser'])) {
     $deleteUserId = mysqli_real_escape_string($db, $_POST['deleteUserId']);
 
+    
+    $deleteAccessQuery = "DELETE FROM system_user_access WHERE user_id = '$deleteUserId'";
+    if (!mysqli_query($db, $deleteAccessQuery)) {
+        echo 'Error deleting user access records: ' . mysqli_error($db);
+        
+    }
+
     $deleteUserQuery = "DELETE FROM users WHERE id = '$deleteUserId'";
-
     if (mysqli_query($db, $deleteUserQuery)) {
-        echo "Uživatel s ID $deleteUserId byl úspěšně smazán.";
+        echo "User with ID $deleteUserId has been successfully deleted.";
         header('Location: editusers.php'); 
-
     } else {
-        echo 'Chyba při mazání uživatele: ' . mysqli_error($db);
+        echo 'Error deleting user: ' . mysqli_error($db);
     }
 }
-
 
 if (isset($_POST['loadEditForm'])) {
     
