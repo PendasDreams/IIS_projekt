@@ -69,10 +69,40 @@ if (isset($_POST['addSystem'])) {
 }
 
 
+// function deleteSystem($db, $systemId) {
+//     $systemId = mysqli_real_escape_string($db, $systemId);
+//     $deleteQuery = "DELETE FROM systems WHERE id = '$systemId'";
+//     return mysqli_query($db, $deleteQuery);
+// }
+
 function deleteSystem($db, $systemId) {
-    $systemId = mysqli_real_escape_string($db, $systemId);
-    $deleteQuery = "DELETE FROM systems WHERE id = '$systemId'";
-    return mysqli_query($db, $deleteQuery);
+    mysqli_begin_transaction($db);
+
+    try {
+        
+        $deleteAccessRequestsQuery = "DELETE FROM system_access_requests WHERE system_id = '$systemId'";
+        if (!mysqli_query($db, $deleteAccessRequestsQuery)) {
+            throw new Exception('Error deleting access requests: ' . mysqli_error($db));
+        }
+
+        $deleteUserAccessQuery = "DELETE FROM system_user_access WHERE system_id = '$systemId'";
+        if (!mysqli_query($db, $deleteUserAccessQuery)) {
+            throw new Exception('Error deleting user access: ' . mysqli_error($db));
+        }
+
+        $deleteSystemQuery = "DELETE FROM systems WHERE id = '$systemId'";
+        if (!mysqli_query($db, $deleteSystemQuery)) {
+            throw new Exception('Error deleting system: ' . mysqli_error($db));
+        }
+
+        mysqli_commit($db);
+        return true;
+    } catch (Exception $e) {
+        // Rollback 
+        mysqli_rollback($db);
+        error_log($e->getMessage());
+        return false;
+    }
 }
 
 // Smazání systému
