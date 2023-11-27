@@ -33,10 +33,9 @@ if (isset($_POST['logout'])) {
 }
 
 // Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 
 // SQL dotaz pro získání dat ohledně KPI
@@ -107,9 +106,19 @@ if (isset($_POST['save'])) {
 <body>
 
 <div class="user-bar">
-    <a href="editusers.php" class="system-button">Uživatelé</a>
+    <a href="welcome.php" class="system-button">Menu</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="editusers.php" class="system-button">Uživatelé</a>';
+    }
+    ?>
     <a href="system.php" class="system-button">Systémy</a>
     <a href="devices.php" class="system-button">Zařízení</a>
+    <?php
+    if ($currentRole != 'guest'){
+        echo '<a href="manage_requests.php" class="system-button">Spravovat žádosti</a>';
+    }
+    ?>
 
     <?php if ($currentUsername) : ?>
         <span class="user-info">Přihlášený uživatel:</span> <strong><?= $currentUsername ?></strong><br>

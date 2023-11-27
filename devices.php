@@ -1,6 +1,7 @@
 <?php
 session_start();
 
+
 // Funkce pro odhlášení uživatele
 function logoutUser() {
     session_unset(); // Vyprázdnění všech session proměnných
@@ -19,12 +20,9 @@ if (isset($_POST['logout'])) {
 }
 
 
-
-// Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 // SQL dotaz pro získání dat ze tabulky "devices"
 $selectQuery = "SELECT * FROM devices";
@@ -251,9 +249,9 @@ if($currentRole == 'admin' || $currentRole == 'registered'):
             while ($row = mysqli_fetch_assoc($result)) : 
         ?>
             <tr>
-                <td><?= $row['id'] ?></td>
                 <td><?= $row['device_name'] ?></td>
                 <td><?= $row['device_type'] ?></td>
+                <td><?= $row['device_description'] ?></td>
             </tr>
         <?php endwhile; ?>
     </table>

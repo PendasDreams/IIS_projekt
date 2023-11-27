@@ -1,9 +1,8 @@
 <?php
 // Připojení k databázi
+include_once("connect.php");
 $db = mysqli_init();
-if (!mysqli_real_connect($db, 'localhost', 'xdohna52', 'vemsohu6', 'xdohna52', 0, '/var/run/mysql/mysql.sock')) {
-    die('Nelze se připojit k databázi: ' . mysqli_connect_error());
-}
+pripojit();
 
 // Získání hodnot z formuláře (pokud byl formulář odeslán)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
